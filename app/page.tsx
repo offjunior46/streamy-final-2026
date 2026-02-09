@@ -70,7 +70,11 @@ export default function Page() {
             placeholder="Rechercher un abonnement..."
             style={styles.searchInput}
           />
-          <button type="submit" style={styles.searchBtn} aria-label="Rechercher">
+          <button
+            type="submit"
+            style={styles.searchBtn}
+            aria-label="Rechercher"
+          >
             🔍
           </button>
         </form>
@@ -114,8 +118,8 @@ export default function Page() {
             <span style={{ ...styles.stepNumber, color: "#6366F1" }}>01</span>
             <h3 style={styles.stepTitle}>Choix</h3>
             <p style={styles.stepText}>
-              Choisissez l’abonnement que vous souhaitez (Netflix, Spotify, Prime
-              Video…).
+              Choisissez l’abonnement que vous souhaitez (Netflix, Spotify,
+              Prime Video…).
             </p>
           </div>
 
@@ -144,6 +148,7 @@ export default function Page() {
           </div>
         </div>
       </section>
+      {/* ================= RENOUVELER ================= */}
 
       {/* =========================
           SECTION 3 — STREAMY C’EST QUOI ?
@@ -163,16 +168,17 @@ export default function Page() {
             <div style={styles.aboutUnderline} />
 
             <p style={styles.aboutPara}>
-              Streamy est votre solution conviviale et rapide pour acheter et recevoir
-              des abonnements numériques Netflix, Prime Video, Spotify et bien plus en
-              quelques clics.
+              Streamy est votre solution conviviale et rapide pour acheter et
+              recevoir des abonnements numériques Netflix, Prime Video, Spotify
+              et bien plus en quelques clics.
             </p>
 
             <p style={styles.aboutPara}>
               <strong>Notre mission :</strong> rendre l’achat de vos abonnements
               préférés simple, sûr et instantané avec une livraison rapide et un
-              support réactif. Profitez d’un accès rapide à des contenus premium, le
-              tout avec une expérience utilisateur fluide et sécurisée.
+              support réactif. Profitez d’un accès rapide à des contenus
+              premium, le tout avec une expérience utilisateur fluide et
+              sécurisée.
             </p>
           </div>
         </div>
@@ -191,7 +197,11 @@ export default function Page() {
               alt="Instagram"
               style={styles.socialIcon}
             />
-            <img src="/social/tiktok.png" alt="TikTok" style={styles.socialIcon} />
+            <img
+              src="/social/tiktok.png"
+              alt="TikTok"
+              style={styles.socialIcon}
+            />
             <img
               src="/social/facebook.png"
               alt="Facebook"
@@ -202,7 +212,11 @@ export default function Page() {
               alt="WhatsApp"
               style={styles.socialIcon}
             />
-            <img src="/social/gmail.png" alt="Gmail" style={styles.socialIcon} />
+            <img
+              src="/social/gmail.png"
+              alt="Gmail"
+              style={styles.socialIcon}
+            />
           </div>
 
           <p style={styles.paymentNote}>
@@ -210,8 +224,12 @@ export default function Page() {
           </p>
 
           <div style={styles.footerBtns}>
-            <button style={styles.footerBtnOrange}>Politique de remboursement</button>
-            <button style={styles.footerBtnOrange}>Conditions d'utilisation</button>
+            <button style={styles.footerBtnOrange}>
+              Politique de remboursement
+            </button>
+            <button style={styles.footerBtnOrange}>
+              Conditions d'utilisation
+            </button>
           </div>
         </div>
       </section>
@@ -314,7 +332,12 @@ const styles: Record<string, React.CSSProperties> = {
     width: "max-content",
     animation: "marquee 20s linear infinite",
   },
-  card: { width: 200, background: "#f9fbff", borderRadius: 16, overflow: "hidden" },
+  card: {
+    width: 200,
+    background: "#f9fbff",
+    borderRadius: 16,
+    overflow: "hidden",
+  },
   cardImageArea: {
     height: 110,
     display: "flex",
@@ -368,8 +391,17 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
   },
-  aboutImgWrap: { display: "flex", justifyContent: "center", alignItems: "center" },
-  aboutImg: { width: "100%", maxWidth: 520, borderRadius: 18, objectFit: "cover" },
+  aboutImgWrap: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  aboutImg: {
+    width: "100%",
+    maxWidth: 520,
+    borderRadius: 18,
+    objectFit: "cover",
+  },
   aboutText: { padding: "6px 10px" },
   aboutTitle: { fontSize: 36, fontWeight: 900, margin: 0, color: "#1f2937" },
   aboutUnderline: {
@@ -380,7 +412,12 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 10,
     marginBottom: 16,
   },
-  aboutPara: { color: "#475569", lineHeight: 1.7, fontSize: 16, margin: "0 0 14px 0" },
+  aboutPara: {
+    color: "#475569",
+    lineHeight: 1.7,
+    fontSize: 16,
+    margin: "0 0 14px 0",
+  },
 
   contactSection: {
     marginTop: 40,
@@ -398,7 +435,12 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid rgba(255,255,255,0.7)",
     textAlign: "center",
   },
-  contactTitle: { fontSize: 34, fontWeight: 900, margin: "0 0 16px 0", color: "#1f2937" },
+  contactTitle: {
+    fontSize: 34,
+    fontWeight: 900,
+    margin: "0 0 16px 0",
+    color: "#1f2937",
+  },
   socialRow: {
     display: "flex",
     gap: 18,
@@ -416,7 +458,12 @@ const styles: Record<string, React.CSSProperties> = {
   },
   paymentNote: { color: "#475569", margin: "10px 0 18px", fontSize: 16 },
 
-  footerBtns: { display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" },
+  footerBtns: {
+    display: "flex",
+    gap: 16,
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
   footerBtnOrange: {
     padding: "12px 18px",
     borderRadius: 14,
