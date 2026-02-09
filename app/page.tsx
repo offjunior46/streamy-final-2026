@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
 
 export default function Page() {
   const brands = [
@@ -150,45 +151,46 @@ export default function Page() {
       </section>
       {/* ================= RENOUVELER ================= */}
       <section style={styles.howSection}>
-  <h2 style={styles.howTitle}>Renouveler votre abonnement</h2>
-  <p style={styles.howSubtitle}>
-    Conservez vos accès sans interruption, en seulement 4 étapes.
-  </p>
+        <h2 style={styles.howTitle}>Renouveler votre abonnement</h2>
+        <p style={styles.howSubtitle}>
+          Conservez vos accès sans interruption, en seulement 4 étapes.
+        </p>
 
-  <div style={styles.stepsGrid}>
-    <div style={{ ...styles.stepCard, background: "#EEF2FF" }}>
-      <span style={{ ...styles.stepNumber, color: "#6366F1" }}>01</span>
-      <h3 style={styles.stepTitle}>Service</h3>
-      <p style={styles.stepText}>
-        Choisissez le service à renouveler (Netflix, Spotify, Prime Video…).
-      </p>
-    </div>
+        <div style={styles.stepsGrid}>
+          <div style={{ ...styles.stepCard, background: "#EEF2FF" }}>
+            <span style={{ ...styles.stepNumber, color: "#6366F1" }}>01</span>
+            <h3 style={styles.stepTitle}>Service</h3>
+            <p style={styles.stepText}>
+              Choisissez le service à renouveler (Netflix, Spotify, Prime
+              Video…).
+            </p>
+          </div>
 
-    <div style={{ ...styles.stepCard, background: "#FEF3C7" }}>
-      <span style={{ ...styles.stepNumber, color: "#F59E0B" }}>02</span>
-      <h3 style={styles.stepTitle}>Compte existant</h3>
-      <p style={styles.stepText}>
-        Indiquez que vous possédez déjà un compte à conserver.
-      </p>
-    </div>
+          <div style={{ ...styles.stepCard, background: "#FEF3C7" }}>
+            <span style={{ ...styles.stepNumber, color: "#F59E0B" }}>02</span>
+            <h3 style={styles.stepTitle}>Compte existant</h3>
+            <p style={styles.stepText}>
+              Indiquez que vous possédez déjà un compte à conserver.
+            </p>
+          </div>
 
-    <div style={{ ...styles.stepCard, background: "#FCE7F3" }}>
-      <span style={{ ...styles.stepNumber, color: "#EC4899" }}>03</span>
-      <h3 style={styles.stepTitle}>Vérification</h3>
-      <p style={styles.stepText}>
-        Renseignez l’email ou l’identifiant du compte à renouveler.
-      </p>
-    </div>
+          <div style={{ ...styles.stepCard, background: "#FCE7F3" }}>
+            <span style={{ ...styles.stepNumber, color: "#EC4899" }}>03</span>
+            <h3 style={styles.stepTitle}>Vérification</h3>
+            <p style={styles.stepText}>
+              Renseignez l’email ou l’identifiant du compte à renouveler.
+            </p>
+          </div>
 
-    <div style={{ ...styles.stepCard, background: "#ECFEFF" }}>
-      <span style={{ ...styles.stepNumber, color: "#06B6D4" }}>04</span>
-      <h3 style={styles.stepTitle}>Paiement</h3>
-      <p style={styles.stepText}>
-        Payez en toute sécurité et continuez à profiter immédiatement.
-      </p>
-    </div>
-  </div>
-</section>
+          <div style={{ ...styles.stepCard, background: "#ECFEFF" }}>
+            <span style={{ ...styles.stepNumber, color: "#06B6D4" }}>04</span>
+            <h3 style={styles.stepTitle}>Paiement</h3>
+            <p style={styles.stepText}>
+              Payez en toute sécurité et continuez à profiter immédiatement.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* =========================
           SECTION 3 — STREAMY C’EST QUOI ?
@@ -230,33 +232,49 @@ export default function Page() {
       <section style={styles.contactSection}>
         <div style={styles.contactCard}>
           <h2 style={styles.contactTitle}>Où nous contacter ?</h2>
-
           <div style={styles.socialRow}>
-            <img
-              src="/social/instagram.png"
-              alt="Instagram"
-              style={styles.socialIcon}
-            />
-            <img
-              src="/social/tiktok.png"
-              alt="TikTok"
-              style={styles.socialIcon}
-            />
-            <img
-              src="/social/facebook.png"
-              alt="Facebook"
-              style={styles.socialIcon}
-            />
-            <img
-              src="/social/whatsapp.png"
-              alt="WhatsApp"
-              style={styles.socialIcon}
-            />
-            <img
-              src="/social/gmail.png"
-              alt="Gmail"
-              style={styles.socialIcon}
-            />
+            <a href="https://www.instagram.com/streamy.sn/" target="_blank">
+              <img
+                src="/social/instagram.png"
+                alt="Instagram"
+                style={styles.socialIcon}
+              />
+            </a>
+
+            <a href="https://www.tiktok.com/@streamy.sn" target="_blank">
+              <img
+                src="/social/tiktok.png"
+                alt="TikTok"
+                style={styles.socialIcon}
+              />
+            </a>
+
+            <a
+              href="https://web.facebook.com/people/Streamy-Sn/pfbid0kUpkSsRcURJWZTouimfxBEHfGDCwQSrq5ywF2vVMitqHRGrCCHzrnZCDYr3RWQStl/"
+              target="_blank"
+            >
+              <img
+                src="/social/facebook.png"
+                alt="Facebook"
+                style={styles.socialIcon}
+              />
+            </a>
+
+            <a href="https://wa.me/221781242647" target="_blank">
+              <img
+                src="/social/whatsapp.png"
+                alt="WhatsApp"
+                style={styles.socialIcon}
+              />
+            </a>
+
+            <a href="mailto:contactstreamy.sn@gmail.com">
+              <img
+                src="/social/gmail.png"
+                alt="Email"
+                style={styles.socialIcon}
+              />
+            </a>
           </div>
 
           <p style={styles.paymentNote}>
@@ -264,12 +282,17 @@ export default function Page() {
           </p>
 
           <div style={styles.footerBtns}>
-            <button style={styles.footerBtnOrange}>
-              Politique de remboursement
-            </button>
-            <button style={styles.footerBtnOrange}>
-              Conditions d'utilisation
-            </button>
+            <Link href="/politique-remboursement">
+              <button style={styles.footerBtnOrange}>
+                Politique de remboursement
+              </button>
+            </Link>
+
+            <Link href="/conditions-utilisation">
+              <button style={styles.footerBtnOrange}>
+                Conditions d'utilisation
+              </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -311,14 +334,14 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 60,
     textAlign: "center",
   },
-  
+
   stepsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gap: 20,
     marginTop: 30,
   },
-  
+
   renewStep: {
     background: "#E8F2FF",
     padding: 24,
@@ -326,13 +349,13 @@ const styles: Record<string, React.CSSProperties> = {
     boxShadow: "0 15px 35px rgba(0,0,0,0.08)",
     textAlign: "left",
   },
-  
+
   stepNumber: {
     fontSize: 18,
     fontWeight: 900,
     color: "#2563EB",
   },
-  
+
   nav: { display: "flex", gap: 10 },
   navBtn: {
     padding: "8px 14px",
