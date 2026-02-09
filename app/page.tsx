@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useMemo, useState } from "react";
 
 export default function Page() {
   const brands = [
@@ -11,22 +13,46 @@ export default function Page() {
     { name: "Deezer", src: "/brands/deezer.png" },
   ];
 
+  // Recherche
+  const [query, setQuery] = useState("");
+
+  const filteredBrands = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return brands;
+    return brands.filter((b) => b.name.toLowerCase().includes(q));
+  }, [query]);
+
+  const goAbonnements = () => {
+    window.location.href = "/abonnements";
+  };
+
+  const onSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    goAbonnements();
+  };
+
   return (
     <main style={styles.page}>
       {/* =========================
           SECTION 1 — HEADER + HERO
          ========================= */}
       <header style={styles.header}>
-        <div style={styles.brand}>
-          <img src="/streamy-logo.png" alt="Streamy" style={styles.logo} />
-          <span style={styles.brandName}>Streamy</span>
-        </div>
+        {/* Logo cliquable -> Accueil */}
+        <a href="/" style={styles.brandLink}>
+          <div style={styles.brand}>
+            <img src="/streamy-logo.png" alt="Streamy" style={styles.logo} />
+            <span style={styles.brandName}>Streamy</span>
+          </div>
+        </a>
 
         <nav style={styles.nav}>
-          <button style={{ ...styles.navBtn, ...styles.navBtnActive }}>
+          <a href="/" style={{ ...styles.navBtn, ...styles.navBtnActive }}>
             Accueil
-          </button>
-          <button style={styles.navBtn}>Abonnements</button>
+          </a>
+
+          <a href="/abonnements" style={styles.navBtn}>
+            Abonnements
+          </a>
         </nav>
 
         <div style={styles.actions}>
@@ -36,24 +62,29 @@ export default function Page() {
       </header>
 
       <section style={styles.hero}>
-        <div style={styles.searchWrap}>
+        {/* Recherche */}
+        <form style={styles.searchWrap} onSubmit={onSearchSubmit}>
           <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Rechercher un abonnement..."
             style={styles.searchInput}
           />
-          <button style={styles.searchBtn}>🔍</button>
-        </div>
+          <button type="submit" style={styles.searchBtn} aria-label="Rechercher">
+            🔍
+          </button>
+        </form>
 
         <h1 style={styles.slogan}>Payez — Recevez — Profitez</h1>
         <p style={styles.subtitle}>
           Profitez d’abonnements et de services de qualité en quelques clics.
         </p>
 
-        {/* SLIDER */}
+        {/* SLIDER (filtré par la recherche) */}
         <div style={styles.sliderShell}>
           <div style={styles.sliderTrack}>
-            {[...brands, ...brands].map((b, i) => (
-              <div key={i} style={styles.card}>
+            {[...filteredBrands, ...filteredBrands].map((b, i) => (
+              <div key={`${b.name}-${i}`} style={styles.card}>
                 <div style={styles.cardImageArea}>
                   <img src={b.src} alt={b.name} style={styles.cardImg} />
                 </div>
@@ -64,7 +95,10 @@ export default function Page() {
         </div>
 
         <div style={styles.ctaWrap}>
-          <button style={styles.ctaBtn}>Recommandé pour vous</button>
+          {/* ORANGE + redirection abonnements */}
+          <button style={styles.ctaBtnOrange} onClick={goAbonnements}>
+            Recommandé pour vous
+          </button>
         </div>
       </section>
 
@@ -80,8 +114,8 @@ export default function Page() {
             <span style={{ ...styles.stepNumber, color: "#6366F1" }}>01</span>
             <h3 style={styles.stepTitle}>Choix</h3>
             <p style={styles.stepText}>
-              Choisissez l’abonnement que vous souhaitez (Netflix, Spotify,
-              Prime Video…).
+              Choisissez l’abonnement que vous souhaitez (Netflix, Spotify, Prime
+              Video…).
             </p>
           </div>
 
@@ -129,17 +163,16 @@ export default function Page() {
             <div style={styles.aboutUnderline} />
 
             <p style={styles.aboutPara}>
-              Streamy est votre solution conviviale et rapide pour acheter et
-              recevoir des abonnements numériques Netflix, Prime Video, Spotify
-              et bien plus en quelques clics.
+              Streamy est votre solution conviviale et rapide pour acheter et recevoir
+              des abonnements numériques Netflix, Prime Video, Spotify et bien plus en
+              quelques clics.
             </p>
 
             <p style={styles.aboutPara}>
               <strong>Notre mission :</strong> rendre l’achat de vos abonnements
               préférés simple, sûr et instantané avec une livraison rapide et un
-              support réactif. Profitez d’un accès rapide à des contenus
-              premium, le tout avec une expérience utilisateur fluide et
-              sécurisée.
+              support réactif. Profitez d’un accès rapide à des contenus premium, le
+              tout avec une expérience utilisateur fluide et sécurisée.
             </p>
           </div>
         </div>
@@ -158,11 +191,7 @@ export default function Page() {
               alt="Instagram"
               style={styles.socialIcon}
             />
-            <img
-              src="/social/tiktok.png"
-              alt="TikTok"
-              style={styles.socialIcon}
-            />
+            <img src="/social/tiktok.png" alt="TikTok" style={styles.socialIcon} />
             <img
               src="/social/facebook.png"
               alt="Facebook"
@@ -173,11 +202,7 @@ export default function Page() {
               alt="WhatsApp"
               style={styles.socialIcon}
             />
-            <img
-              src="/social/gmail.png"
-              alt="Gmail"
-              style={styles.socialIcon}
-            />
+            <img src="/social/gmail.png" alt="Gmail" style={styles.socialIcon} />
           </div>
 
           <p style={styles.paymentNote}>
@@ -185,15 +210,12 @@ export default function Page() {
           </p>
 
           <div style={styles.footerBtns}>
-            <button style={styles.footerBtn}>Politique de remboursement</button>
-            <button style={{ ...styles.footerBtn, ...styles.footerBtnPrimary }}>
-              Conditions d'utilisation
-            </button>
+            <button style={styles.footerBtnOrange}>Politique de remboursement</button>
+            <button style={styles.footerBtnOrange}>Conditions d'utilisation</button>
           </div>
         </div>
       </section>
 
-      {/* keyframes (marquee) */}
       <style>{`
         @keyframes marquee {
           from { transform: translateX(0); }
@@ -212,7 +234,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "system-ui, Arial",
   },
 
-  /* HEADER */
   header: {
     background: "white",
     borderRadius: 16,
@@ -222,6 +243,8 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "space-between",
     marginBottom: 20,
   },
+
+  brandLink: { textDecoration: "none", color: "inherit" },
   brand: { display: "flex", alignItems: "center", gap: 10 },
   logo: { width: 36, height: 36, objectFit: "contain" },
   brandName: { fontSize: 20, fontWeight: 900 },
@@ -234,6 +257,10 @@ const styles: Record<string, React.CSSProperties> = {
     background: "transparent",
     fontWeight: 700,
     cursor: "pointer",
+    textDecoration: "none",
+    color: "#0f172a",
+    display: "inline-flex",
+    alignItems: "center",
   },
   navBtnActive: { background: "#eef3ff" },
 
@@ -248,7 +275,6 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
   },
 
-  /* HERO */
   hero: {
     background: "#e9f5ff",
     borderRadius: 20,
@@ -271,6 +297,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: "white",
     cursor: "pointer",
   },
+
   slogan: { fontSize: 42, fontWeight: 900, marginTop: 20 },
   subtitle: { opacity: 0.75 },
 
@@ -287,12 +314,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: "max-content",
     animation: "marquee 20s linear infinite",
   },
-  card: {
-    width: 200,
-    background: "#f9fbff",
-    borderRadius: 16,
-    overflow: "hidden",
-  },
+  card: { width: 200, background: "#f9fbff", borderRadius: 16, overflow: "hidden" },
   cardImageArea: {
     height: 110,
     display: "flex",
@@ -304,28 +326,18 @@ const styles: Record<string, React.CSSProperties> = {
   cardLabel: { padding: 12, fontWeight: 800 },
 
   ctaWrap: { marginTop: 20 },
-  ctaBtn: {
+  ctaBtnOrange: {
     padding: "12px 20px",
     borderRadius: 14,
     fontWeight: 900,
     cursor: "pointer",
+    background: "#ff9f2d",
+    border: "none",
   },
 
-  /* SECTION 2 — HOW */
-  howSection: {
-    marginTop: 50,
-    padding: "40px 20px",
-    textAlign: "center",
-  },
-  howTitle: {
-    fontSize: 32,
-    fontWeight: 900,
-    marginBottom: 6,
-  },
-  howSubtitle: {
-    color: "#64748B",
-    marginBottom: 30,
-  },
+  howSection: { marginTop: 50, padding: "40px 20px", textAlign: "center" },
+  howTitle: { fontSize: 32, fontWeight: 900, marginBottom: 6 },
+  howSubtitle: { color: "#64748B", marginBottom: 30 },
   stepsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
@@ -339,26 +351,11 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: "left",
     boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
   },
-  stepNumber: {
-    fontWeight: 900,
-    fontSize: 18,
-  },
-  stepTitle: {
-    marginTop: 10,
-    fontWeight: 800,
-    fontSize: 18,
-  },
-  stepText: {
-    marginTop: 8,
-    color: "#475569",
-    lineHeight: 1.4,
-  },
+  stepNumber: { fontWeight: 900, fontSize: 18 },
+  stepTitle: { marginTop: 10, fontWeight: 800, fontSize: 18 },
+  stepText: { marginTop: 8, color: "#475569", lineHeight: 1.4 },
 
-  /* SECTION 3 — ABOUT */
-  aboutSection: {
-    marginTop: 10,
-    padding: "30px 0 10px",
-  },
+  aboutSection: { marginTop: 10, padding: "30px 0 10px" },
   aboutInner: {
     maxWidth: 1100,
     margin: "0 auto",
@@ -371,24 +368,10 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
   },
-  aboutImgWrap: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  aboutImg: {
-    width: "100%",
-    maxWidth: 520,
-    borderRadius: 18,
-    objectFit: "cover",
-  },
+  aboutImgWrap: { display: "flex", justifyContent: "center", alignItems: "center" },
+  aboutImg: { width: "100%", maxWidth: 520, borderRadius: 18, objectFit: "cover" },
   aboutText: { padding: "6px 10px" },
-  aboutTitle: {
-    fontSize: 36,
-    fontWeight: 900,
-    margin: 0,
-    color: "#1f2937",
-  },
+  aboutTitle: { fontSize: 36, fontWeight: 900, margin: 0, color: "#1f2937" },
   aboutUnderline: {
     width: 170,
     height: 6,
@@ -397,14 +380,8 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 10,
     marginBottom: 16,
   },
-  aboutPara: {
-    color: "#475569",
-    lineHeight: 1.7,
-    fontSize: 16,
-    margin: "0 0 14px 0",
-  },
+  aboutPara: { color: "#475569", lineHeight: 1.7, fontSize: 16, margin: "0 0 14px 0" },
 
-  /* SECTION 4 — CONTACT */
   contactSection: {
     marginTop: 40,
     padding: "30px 0 60px",
@@ -421,12 +398,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid rgba(255,255,255,0.7)",
     textAlign: "center",
   },
-  contactTitle: {
-    fontSize: 34,
-    fontWeight: 900,
-    margin: "0 0 16px 0",
-    color: "#1f2937",
-  },
+  contactTitle: { fontSize: 34, fontWeight: 900, margin: "0 0 16px 0", color: "#1f2937" },
   socialRow: {
     display: "flex",
     gap: 18,
@@ -442,28 +414,16 @@ const styles: Record<string, React.CSSProperties> = {
     objectFit: "cover",
     boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
   },
-  paymentNote: {
-    color: "#475569",
-    margin: "10px 0 18px",
-    fontSize: 16,
-  },
-  footerBtns: {
-    display: "flex",
-    gap: 16,
-    justifyContent: "center",
-    flexWrap: "wrap",
-  },
-  footerBtn: {
+  paymentNote: { color: "#475569", margin: "10px 0 18px", fontSize: 16 },
+
+  footerBtns: { display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" },
+  footerBtnOrange: {
     padding: "12px 18px",
     borderRadius: 14,
-    border: "1px solid rgba(0,0,0,0.08)",
-    background: "rgba(255,255,255,0.7)",
-    fontWeight: 700,
+    border: "none",
+    background: "#ff9f2d",
+    fontWeight: 800,
     cursor: "pointer",
     boxShadow: "0 12px 25px rgba(0,0,0,0.10)",
-  },
-  footerBtnPrimary: {
-    background: "rgba(255,255,255,0.95)",
-    fontWeight: 800,
   },
 };
