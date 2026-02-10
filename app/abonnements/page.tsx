@@ -1,4 +1,4 @@
- "use client"; 
+"use client";
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
@@ -545,6 +545,8 @@ export default function Page() {
   const [paymentMethod, setPaymentMethod] = useState<"wave" | "orange" | null>(
     null
   );
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
   function toggleOffer(key: string) {
     setOpenOffer((prev) => (prev === key ? null : key));
@@ -993,7 +995,8 @@ export default function Page() {
                   }
 
                   // 👉 ICI PayTech (étape suivante)
-                  alert("Redirection vers PayTech 🚀");
+                  setIsCartOpen(false);
+                  setIsPaymentOpen(true);
                 }}
               >
                 🔵 Payer
@@ -1049,18 +1052,127 @@ export default function Page() {
               <button
                 style={styles.validateBtn}
                 onClick={() => {
-                  if (!renewEmail || !renewPassword) {
-                    alert("Veuillez remplir les identifiants");
+                  if (!deliveryMethod || !paymentMethod) {
+                    alert("Veuillez choisir la réception et le paiement");
                     return;
                   }
 
-                  // 👉 PayTech renouvellement
-                  alert("Paiement renouvellement via PayTech 🚀");
+                  setIsPaymentOpen(true);
                 }}
               >
                 🔵 Payer
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {isPaymentOpen && (
+        <div style={styles.cartOverlay}>
+          <div style={styles.cartPopup}>
+            <h3>
+              Paiement par {paymentMethod === "wave" ? "Wave" : "Orange Money"}
+            </h3>
+
+            <div style={{ textAlign: "center", margin: "20px 0" }}>
+              <img
+                src={
+                  paymentMethod === "wave" ? "/wave-qr.png" : "/orange-qr.png"
+                }
+                alt="QR Code paiement"
+                style={{ width: 220, height: 220 }}
+              />
+            </div>
+
+            <div
+              style={{
+                background: "#e9f5ff",
+                padding: 14,
+                borderRadius: 12,
+                fontSize: 14,
+                textAlign: "center",
+                lineHeight: 1.5,
+              }}
+            >
+              Veuillez scanner ce QR code et transférer la somme exacte de votre
+              commande au compte <b>78 124 26 47</b>.
+              <br />
+              <br />
+              Après le paiement, envoyez la preuve sur WhatsApp au
+              <b> 78 124 26 47</b>.
+              <br />
+              <br />
+              Votre bon de commande vous sera envoyé par{" "}
+              <b>{deliveryMethod === "email" ? "email" : "WhatsApp"}</b>.
+            </div>
+            <div style={{ marginTop: 16 }}>
+              <a
+                href="https://wa.me/221781242647"
+                target="_blank"
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  background: "#22c55e",
+                  color: "white",
+                  padding: "14px",
+                  borderRadius: 14,
+                  fontWeight: 900,
+                  textDecoration: "none",
+                  boxShadow: "0 12px 25px rgba(0,0,0,0.15)",
+                }}
+              >
+                📩 Envoyer la preuve de paiement sur WhatsApp
+              </a>
+            </div>
+
+            <div style={{ marginTop: 16 }}>
+              <button
+                style={styles.validateBtn}
+                onClick={() => {
+                  setIsPaymentOpen(false);
+                  setIsConfirmationOpen(true);
+                }}
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isConfirmationOpen && (
+        <div style={styles.cartOverlay}>
+          <div style={styles.cartPopup}>
+            <h3 style={{ textAlign: "center" }}>
+              ✅ Paiement en cours de traitement
+            </h3>
+
+            <div
+              style={{
+                background: "#ecfeff",
+                padding: 14,
+                borderRadius: 12,
+                marginTop: 14,
+                fontSize: 14,
+                lineHeight: 1.5,
+                textAlign: "center",
+              }}
+            >
+              Merci 🙏
+              <br />
+              Nous avons bien reçu votre preuve de paiement.
+              <br />
+              <br />
+              Notre équipe va vérifier votre paiement et vous envoyer
+              <b> votre bon de commande</b> par{" "}
+              <b>{deliveryMethod === "email" ? "email" : "WhatsApp"}</b>.
+            </div>
+
+            <button
+              style={{ ...styles.validateBtn, marginTop: 18 }}
+              onClick={() => setIsConfirmationOpen(false)}
+            >
+              Fermer
+            </button>
           </div>
         </div>
       )}
