@@ -6,6 +6,7 @@ import { auth } from "./firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 export default function Page() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   const handleGoogleLogin = async () => {
     try {
@@ -341,17 +342,6 @@ export default function Page() {
             />
 
             <button style={styles.loginSubmit}>Se connecter</button>
-
-            <p
-              style={{
-                textAlign: "center",
-                marginTop: 15,
-                cursor: "pointer",
-                color: "#0ea5e9",
-              }}
-            >
-              Créer un compte
-            </p>
 
             <button
               style={styles.closeBtn}
