@@ -11,16 +11,15 @@ export default function Page() {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-  
+
       console.log("Utilisateur connecté :", result.user);
       alert("Connexion réussie avec Google ✅");
-  
     } catch (error) {
       console.error("Erreur Google Login :", error);
       alert("Erreur de connexion");
     }
   };
-  
+
   const brands = [
     { name: "Netflix", src: "/brands/netflix.png" },
     { name: "Prime Video", src: "/brands/prime-video.png" },
@@ -75,13 +74,9 @@ export default function Page() {
 
         <div style={styles.actions}>
           <button style={styles.cartBtn}>🛒 Mon panier</button>
-          <button
-  style={styles.loginBtn}
-  onClick={() => setIsLoginOpen(true)}
->
-  Connexion
-</button>
-
+          <button style={styles.loginBtn} onClick={() => setIsLoginOpen(true)}>
+            Connexion
+          </button>
         </div>
       </header>
 
@@ -327,70 +322,104 @@ export default function Page() {
         }
       `}</style>
       {isLoginOpen && (
-  <div style={styles.cartOverlay}>
-    <div style={styles.cartPopup}>
+        <div style={styles.cartOverlay}>
+          <div style={styles.cartPopup}>
+            <div style={{ textAlign: "center", marginBottom: 20 }}>
+              <img src="/streamy-logo.png" style={{ width: 60 }} />
+              <h2>Connexion</h2>
+            </div>
 
-      <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <img src="/streamy-logo.png" style={{ width: 60 }} />
-        <h2>Connexion</h2>
-      </div>
+            <button
+              style={{
+                width: "100%",
+                padding: 14,
+                borderRadius: 12,
+                border: "1px solid #e5e7eb",
+                marginBottom: 15,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+              onClick={handleGoogleLogin}
+            >
+              🔵 Se connecter avec Google
+            </button>
 
-      <button
-        style={{
-          width: "100%",
-          padding: 14,
-          borderRadius: 12,
-          border: "1px solid #e5e7eb",
-          marginBottom: 15,
-          fontWeight: 700,
-          cursor: "pointer"
-        }}
-        onClick={handleGoogleLogin}
-      >
-        🔵 Se connecter avec Google
-      </button>
+            <div style={{ marginBottom: 10 }}>Email</div>
+            <input
+              type="email"
+              placeholder="Votre email"
+              style={styles.searchInput}
+            />
 
-      <div style={{ marginBottom: 10 }}>Email</div>
-      <input
-        type="email"
-        placeholder="Votre email"
-        style={styles.searchInput}
-      />
+            <div style={{ marginTop: 15 }}>Mot de passe</div>
+            <input
+              type="password"
+              placeholder="Votre mot de passe"
+              style={styles.searchInput}
+            />
 
-      <div style={{ marginTop: 15 }}>Mot de passe</div>
-      <input
-        type="password"
-        placeholder="Votre mot de passe"
-        style={styles.searchInput}
-      />
+            <button style={{ ...styles.validateBtn, marginTop: 20 }}>
+              Se connecter
+            </button>
 
-      <button
-        style={{ ...styles.validateBtn, marginTop: 20 }}
-      >
-        Se connecter
-      </button>
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: 15,
+                color: "#0ea5e9",
+                cursor: "pointer",
+              }}
+            >
+              Créer un compte
+            </div>
 
-      <div
-        style={{
-          textAlign: "center",
-          marginTop: 15,
-          color: "#0ea5e9",
-          cursor: "pointer"
-        }}
-      >
-        Créer un compte
-      </div>
+            <div style={{ marginTop: 15 }}>
+              <button onClick={() => setIsLoginOpen(false)}>Fermer</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isLoginOpen && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalBox}>
+            <h2 style={{ textAlign: "center" }}>Connexion</h2>
 
-      <div style={{ marginTop: 15 }}>
-        <button onClick={() => setIsLoginOpen(false)}>
-          Fermer
-        </button>
-      </div>
+            <button style={styles.googleBtn} onClick={handleGoogleLogin}>
+              Se connecter avec Google
+            </button>
 
-    </div>
-  </div>
-)}
+            <div style={{ margin: "20px 0", textAlign: "center" }}>— ou —</div>
 
+            <input placeholder="Email" style={styles.input} />
+
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              style={styles.input}
+            />
+
+            <button style={styles.loginSubmit}>Se connecter</button>
+
+            <p
+              style={{
+                textAlign: "center",
+                marginTop: 15,
+                cursor: "pointer",
+                color: "#0ea5e9",
+              }}
+            >
+              Créer un compte
+            </p>
+
+            <button
+              style={styles.closeBtn}
+              onClick={() => setIsLoginOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -468,6 +497,66 @@ const styles: Record<string, React.CSSProperties> = {
     border: "none",
     fontWeight: 800,
     cursor: "pointer",
+  },
+  modalOverlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2000,
+  },
+
+  modalBox: {
+    background: "#111827",
+    padding: 30,
+    borderRadius: 18,
+    width: "380px",
+    color: "white",
+    position: "relative",
+  },
+
+  googleBtn: {
+    width: "100%",
+    padding: 12,
+    borderRadius: 12,
+    background: "#0ea5e9",
+    border: "none",
+    color: "white",
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+
+  input: {
+    width: "100%",
+    padding: 12,
+    borderRadius: 10,
+    border: "1px solid #374151",
+    marginBottom: 12,
+    background: "#1f2937",
+    color: "white",
+  },
+
+  loginSubmit: {
+    width: "100%",
+    padding: 12,
+    borderRadius: 12,
+    background: "#ff9f2d",
+    border: "none",
+    fontWeight: 800,
+    cursor: "pointer",
+  },
+
+  closeBtn: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    background: "transparent",
+    border: "none",
+    color: "white",
+    cursor: "pointer",
+    fontSize: 18,
   },
 
   hero: {
