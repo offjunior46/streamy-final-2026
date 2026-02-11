@@ -17,7 +17,6 @@ export default function Page() {
       alert("Connexion réussie avec Google ✅");
     } catch (error) {
       console.error("Erreur Google Login :", error);
-      alert("Erreur de connexion");
     }
   };
 
