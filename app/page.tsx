@@ -2,8 +2,25 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
-
+import { auth } from "./firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 export default function Page() {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+  
+      console.log("Utilisateur connecté :", result.user);
+      alert("Connexion réussie avec Google ✅");
+  
+    } catch (error) {
+      console.error("Erreur Google Login :", error);
+      alert("Erreur de connexion");
+    }
+  };
+  
   const brands = [
     { name: "Netflix", src: "/brands/netflix.png" },
     { name: "Prime Video", src: "/brands/prime-video.png" },
@@ -58,7 +75,13 @@ export default function Page() {
 
         <div style={styles.actions}>
           <button style={styles.cartBtn}>🛒 Mon panier</button>
-          <button style={styles.loginBtn}>Connexion</button>
+          <button
+  style={styles.loginBtn}
+  onClick={() => setIsLoginOpen(true)}
+>
+  Connexion
+</button>
+
         </div>
       </header>
 
@@ -303,6 +326,71 @@ export default function Page() {
           to { transform: translateX(-50%); }
         }
       `}</style>
+      {isLoginOpen && (
+  <div style={styles.cartOverlay}>
+    <div style={styles.cartPopup}>
+
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <img src="/streamy-logo.png" style={{ width: 60 }} />
+        <h2>Connexion</h2>
+      </div>
+
+      <button
+        style={{
+          width: "100%",
+          padding: 14,
+          borderRadius: 12,
+          border: "1px solid #e5e7eb",
+          marginBottom: 15,
+          fontWeight: 700,
+          cursor: "pointer"
+        }}
+        onClick={handleGoogleLogin}
+      >
+        🔵 Se connecter avec Google
+      </button>
+
+      <div style={{ marginBottom: 10 }}>Email</div>
+      <input
+        type="email"
+        placeholder="Votre email"
+        style={styles.searchInput}
+      />
+
+      <div style={{ marginTop: 15 }}>Mot de passe</div>
+      <input
+        type="password"
+        placeholder="Votre mot de passe"
+        style={styles.searchInput}
+      />
+
+      <button
+        style={{ ...styles.validateBtn, marginTop: 20 }}
+      >
+        Se connecter
+      </button>
+
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: 15,
+          color: "#0ea5e9",
+          cursor: "pointer"
+        }}
+      >
+        Créer un compte
+      </div>
+
+      <div style={{ marginTop: 15 }}>
+        <button onClick={() => setIsLoginOpen(false)}>
+          Fermer
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
     </main>
   );
 }
