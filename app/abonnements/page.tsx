@@ -616,6 +616,39 @@ export default function Page() {
     );
   }
   const total = cart.reduce((sum, item) => sum + item.price, 0);
+  function generateOrderMessage() {
+    const orderId = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+    const services = cart
+      .map(
+        (item) =>
+          `• ${item.productName}
+  Type : ${item.type === "solo" ? "Solo" : "Co-abonnement"}
+  Durée : ${item.duration}
+  Prix : ${formatFCFA(item.price)}`
+      )
+      .join("\n\n");
+
+    const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
+
+    return `
+  MERCI DE VOTRE COMMANDE – STREAMY 💙
+  
+  Numéro de commande : ${orderId}
+  
+  ${services}
+  
+  Nombre d’abonnements : ${cart.length}
+  Prix total : ${formatFCFA(totalPrice)}
+  
+  DÉTAILS DE LA COMMANDE :
+  Si votre commande n'apparait pas ici, veuillez contacter notre support client sur WhatsApp en fournissant votre numéro de commande.
+  
+  CONTACT :
+  WhatsApp : 78 124 26 47
+  Email : contactstreamy.sn@gmail.com
+  `;
+  }
 
   return (
     <main style={styles.page}>
@@ -1106,23 +1139,38 @@ export default function Page() {
               <b>{deliveryMethod === "email" ? "email" : "WhatsApp"}</b>.
             </div>
             <div style={{ marginTop: 16 }}>
-              <a
-                href="https://wa.me/221781242647"
-                target="_blank"
+              <button
+                onClick={() => {
+                  const message = encodeURIComponent(generateOrderMessage());
+
+                  if (deliveryMethod === "whatsapp") {
+                    window.open(
+                      `https://wa.me/221781242647?text=${message}`,
+                      "_blank"
+                    );
+                  } else {
+                    window.location.href =
+                      `mailto:contactstreamy.sn@gmail.com` +
+                      `?subject=Bon de commande Streamy` +
+                      `&body=${message}`;
+                  }
+                }}
                 style={{
                   display: "block",
+                  width: "100%",
                   textAlign: "center",
                   background: "#22c55e",
                   color: "white",
                   padding: "14px",
                   borderRadius: 14,
                   fontWeight: 900,
-                  textDecoration: "none",
+                  border: "none",
+                  cursor: "pointer",
                   boxShadow: "0 12px 25px rgba(0,0,0,0.15)",
                 }}
               >
-                📩 Envoyer la preuve de paiement sur WhatsApp
-              </a>
+                📩 Recevoir mon bon de commande
+              </button>
             </div>
 
             <div style={{ marginTop: 16 }}>
