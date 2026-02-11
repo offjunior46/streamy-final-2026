@@ -322,64 +322,6 @@ export default function Page() {
         }
       `}</style>
       {isLoginOpen && (
-        <div style={styles.cartOverlay}>
-          <div style={styles.cartPopup}>
-            <div style={{ textAlign: "center", marginBottom: 20 }}>
-              <img src="/streamy-logo.png" style={{ width: 60 }} />
-              <h2>Connexion</h2>
-            </div>
-
-            <button
-              style={{
-                width: "100%",
-                padding: 14,
-                borderRadius: 12,
-                border: "1px solid #e5e7eb",
-                marginBottom: 15,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-              onClick={handleGoogleLogin}
-            >
-              🔵 Se connecter avec Google
-            </button>
-
-            <div style={{ marginBottom: 10 }}>Email</div>
-            <input
-              type="email"
-              placeholder="Votre email"
-              style={styles.searchInput}
-            />
-
-            <div style={{ marginTop: 15 }}>Mot de passe</div>
-            <input
-              type="password"
-              placeholder="Votre mot de passe"
-              style={styles.searchInput}
-            />
-
-            <button style={{ ...styles.validateBtn, marginTop: 20 }}>
-              Se connecter
-            </button>
-
-            <div
-              style={{
-                textAlign: "center",
-                marginTop: 15,
-                color: "#0ea5e9",
-                cursor: "pointer",
-              }}
-            >
-              Créer un compte
-            </div>
-
-            <div style={{ marginTop: 15 }}>
-              <button onClick={() => setIsLoginOpen(false)}>Fermer</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {isLoginOpen && (
         <div style={styles.modalOverlay}>
           <div style={styles.modalBox}>
             <h2 style={{ textAlign: "center" }}>Connexion</h2>
@@ -452,25 +394,12 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: "center",
   },
 
-  stepsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: 20,
-    marginTop: 30,
-  },
-
   renewStep: {
     background: "#E8F2FF",
     padding: 24,
     borderRadius: 20,
     boxShadow: "0 15px 35px rgba(0,0,0,0.08)",
     textAlign: "left",
-  },
-
-  stepNumber: {
-    fontSize: 18,
-    fontWeight: 900,
-    color: "#2563EB",
   },
 
   nav: { display: "flex", gap: 10 },
