@@ -1,17 +1,14 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 type PlanType = "solo" | "co";
 type Duration = "1 mois" | "3 mois";
-
 type Offer = {
   type: PlanType;
   duration: Duration;
   price: number; // FCFA
   description: string;
 };
-
 type Product = {
   id: string;
   name: string;
@@ -27,12 +24,10 @@ type Product = {
   popular?: boolean;
   offers: Offer[]; // always 2 offers (solo & co)
 };
-
 function formatFCFA(amount: number) {
   // 10000 -> "10 000 FCFA"
   return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} FCFA`;
 }
-
 export default function Page() {
   const products: Product[] = [
     // =========================
@@ -193,7 +188,6 @@ export default function Page() {
         },
       ],
     },
-
     // =========================
     // TV & SPORT
     // =========================
@@ -241,7 +235,6 @@ export default function Page() {
         },
       ],
     },
-
     // =========================
     // MUSIQUE
     // =========================
@@ -290,7 +283,6 @@ export default function Page() {
         },
       ],
     },
-
     // =========================
     // CRÉATION & DESIGN
     // =========================
@@ -382,7 +374,6 @@ export default function Page() {
         },
       ],
     },
-
     // =========================
     // VPN & SÉCURITÉ
     // =========================
@@ -452,7 +443,6 @@ export default function Page() {
         },
       ],
     },
-
     // =========================
     // IA & OUTILS
     // =========================
@@ -478,7 +468,6 @@ export default function Page() {
         },
       ],
     },
-
     // =========================
     // RÉSEAUX SOCIAUX
     // =========================
@@ -505,13 +494,11 @@ export default function Page() {
       ],
     },
   ];
-
   // Left filters (categories)
   const categories = useMemo(() => {
     const all = Array.from(new Set(products.map((p) => p.category)));
     return all;
   }, [products]);
-
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] =
     useState<string>("Tous les produits");
@@ -521,7 +508,6 @@ export default function Page() {
   // 👉 état pour ouvrir une offre (solo/co)
   const [openOffer, setOpenOffer] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
-
   const [cart, setCart] = useState<
     {
       productId: string;
@@ -535,19 +521,16 @@ export default function Page() {
   const [deliveryMethod, setDeliveryMethod] = useState<
     "email" | "whatsapp" | null
   >(null);
-
   // Renouvellement
   const [isRenewOpen, setIsRenewOpen] = useState(false);
   const [renewEmail, setRenewEmail] = useState("");
   const [renewPassword, setRenewPassword] = useState("");
-
   // Paiement
   const [paymentMethod, setPaymentMethod] = useState<"wave" | "orange" | null>(
     null
   );
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-
   function toggleOffer(key: string) {
     setOpenOffer((prev) => (prev === key ? null : key));
   }
@@ -562,18 +545,14 @@ export default function Page() {
         price: offer.price,
       },
     ]);
-
     alert("Ajouté au panier ✅");
   }
-
   const filtered = useMemo(() => {
     let list = [...products];
-
     // category
     if (activeCategory !== "Tous les produits") {
       list = list.filter((p) => p.category === activeCategory);
     }
-
     // search
     const q = query.trim().toLowerCase();
     if (q) {
@@ -586,7 +565,6 @@ export default function Page() {
         return inName || inCat || inDesc;
       });
     }
-
     // sorting
     if (sort === "pop") {
       list.sort(
@@ -599,14 +577,11 @@ export default function Page() {
     } else if (sort === "price_desc") {
       list.sort((a, b) => minPrice(b) - minPrice(a));
     }
-
     return list;
   }, [products, activeCategory, query, sort]);
-
   function minPrice(p: Product) {
     return Math.min(...p.offers.map((o) => o.price));
   }
-
   function handleSubscribe(product: Product, offer: Offer) {
     // For now: just a simple alert. Later: add to cart, open modal, etc.
     alert(
@@ -618,7 +593,6 @@ export default function Page() {
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   function generateOrderMessage() {
     const orderId = Math.random().toString(36).substring(2, 10).toUpperCase();
-
     const services = cart
       .map(
         (item) =>
@@ -628,28 +602,25 @@ export default function Page() {
   Prix : ${formatFCFA(item.price)}`
       )
       .join("\n\n");
-
     const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-
     return `
   MERCI DE VOTRE COMMANDE – STREAMY 💙
-  
+ 
   Numéro de commande : ${orderId}
-  
+ 
   ${services}
-  
+ 
   Nombre d’abonnements : ${cart.length}
   Prix total : ${formatFCFA(totalPrice)}
-  
+ 
   DÉTAILS DE LA COMMANDE :
   Si votre commande n'apparait pas ici, veuillez contacter notre support client sur WhatsApp en fournissant votre numéro de commande.
-  
+ 
   CONTACT :
   WhatsApp : 78 124 26 47
   Email : contactstreamy.sn@gmail.com
   `;
   }
-
   return (
     <main style={styles.page}>
       {/* =========================
@@ -660,7 +631,6 @@ export default function Page() {
           <img src="/streamy-logo.png" alt="Streamy" style={styles.logo} />
           <span style={styles.brandName}>Streamy</span>
         </a>
-
         <nav style={styles.nav}>
           <a href="/" style={styles.navBtn}>
             Accueil
@@ -669,19 +639,15 @@ export default function Page() {
             Abonnements
           </span>
         </nav>
-
         <div style={styles.actions}>
           <button
             style={styles.cartHeaderBtn}
             onClick={() => setIsCartOpen(true)}
           >
             🛒 Panier ({cart.length})
-          </button>
-
-          <button style={styles.loginBtn}>Connexion</button>
+          </button>  
         </div>
       </header>
-
       {/* =========================
           TOP TITLE + SEARCH + SORT
          ========================= */}
@@ -690,7 +656,6 @@ export default function Page() {
         <p style={styles.subtitle}>
           Choisissez votre abonnement et profitez immédiatement.
         </p>
-
         <div style={styles.topControls}>
           <div style={styles.searchWrap}>
             <input
@@ -701,7 +666,6 @@ export default function Page() {
             />
             <span style={styles.searchIcon}>🔍</span>
           </div>
-
           <div style={styles.sortWrap}>
             <span style={styles.sortLabel}>Trier par</span>
             <select
@@ -717,7 +681,6 @@ export default function Page() {
           </div>
         </div>
       </section>
-
       {/* =========================
           LAYOUT: LEFT FILTERS + GRID
          ========================= */}
@@ -725,7 +688,6 @@ export default function Page() {
         {/* LEFT FILTERS */}
         <aside style={styles.sidebar}>
           <div style={styles.filterTitle}>Filtres</div>
-
           <button
             onClick={() => setActiveCategory("Tous les produits")}
             style={{
@@ -737,7 +699,6 @@ export default function Page() {
           >
             Tous les Produits
           </button>
-
           {categories.map((c) => (
             <button
               key={c}
@@ -751,7 +712,6 @@ export default function Page() {
             </button>
           ))}
         </aside>
-
         {/* PRODUCTS GRID */}
         <div style={styles.grid}>
           {filtered.map((p) => (
@@ -761,13 +721,11 @@ export default function Page() {
                   <img src={p.img} alt={p.name} style={styles.productLogo} />
                   {p.popular && <span style={styles.badge}>Populaire</span>}
                 </div>
-
                 <div style={styles.productInfo}>
                   <h3 style={styles.productName}>{p.name}</h3>
                   <div style={styles.productCategory}>{p.category}</div>
                 </div>
               </div>
-
               {/* OFFERS */}
               <div style={styles.offers}>
                 {p.offers
@@ -789,7 +747,6 @@ export default function Page() {
                       {(() => {
                         const key = `${p.id}-${o.type}`;
                         const isOpen = openOffer === key;
-
                         return !isOpen ? (
                           <button
                             style={styles.subscribeBtn}
@@ -805,7 +762,6 @@ export default function Page() {
                             >
                               Ajouter au panier
                             </button>
-
                             <button
                               style={styles.validateBtn}
                               onClick={() => alert("Passer au paiement")}
@@ -815,7 +771,6 @@ export default function Page() {
                           </div>
                         );
                       })()}
-
                       <p style={styles.offerDesc}>{o.description}</p>
                     </div>
                   ))}
@@ -824,14 +779,12 @@ export default function Page() {
           ))}
         </div>
       </section>
-
       {/* =========================
           FOOTER — CONTACT (AJOUTÉ)
          ========================= */}
       <section style={styles.contactSection}>
         <div style={styles.contactCard}>
           <h2 style={styles.contactTitle}>Où nous contacter ?</h2>
-
           <div style={styles.socialRow}>
             <a href="https://www.instagram.com/streamy.sn/" target="_blank">
               <img
@@ -840,7 +793,6 @@ export default function Page() {
                 style={styles.socialIcon}
               />
             </a>
-
             <a href="https://www.tiktok.com/@streamy.sn" target="_blank">
               <img
                 src="/social/tiktok.png"
@@ -848,7 +800,6 @@ export default function Page() {
                 style={styles.socialIcon}
               />
             </a>
-
             <a
               href="https://web.facebook.com/people/Streamy-Sn/pfbid0kUpkSsRcURJWZTouimfxBEHfGDCwQSrq5ywF2vVMitqHRGrCCHzrnZCDYr3RWQStl/"
               target="_blank"
@@ -859,7 +810,6 @@ export default function Page() {
                 style={styles.socialIcon}
               />
             </a>
-
             <a href="https://wa.me/221781242647" target="_blank">
               <img
                 src="/social/whatsapp.png"
@@ -867,7 +817,6 @@ export default function Page() {
                 style={styles.socialIcon}
               />
             </a>
-
             <a href="mailto:contactstreamy.sn@gmail.com">
               <img
                 src="/social/gmail.png"
@@ -876,18 +825,15 @@ export default function Page() {
               />
             </a>
           </div>
-
           <p style={styles.paymentNote}>
             Les paiements s’effectuent uniquement via Wave et Orange Money.
           </p>
-
           <div style={styles.footerBtns}>
             <Link href="/politique-remboursement">
               <button style={styles.footerBtnOrange}>
                 Politique de remboursement
               </button>
             </Link>
-
             <Link href="/conditions-utilisation">
               <button style={styles.footerBtnOrange}>
                 Conditions d'utilisation
@@ -900,7 +846,6 @@ export default function Page() {
         <div style={styles.cartOverlay}>
           <div style={styles.cartPopup}>
             <h3 style={{ marginTop: 0 }}>🛒 Mon panier</h3>
-
             {cart.length === 0 ? (
               <p>Votre panier est vide</p>
             ) : (
@@ -912,12 +857,10 @@ export default function Page() {
                       {item.type} — {item.duration}
                     </div>
                   </div>
-
                   <div
                     style={{ display: "flex", gap: 10, alignItems: "center" }}
                   >
                     <span>{formatFCFA(item.price)}</span>
-
                     <button
                       onClick={() =>
                         setCart(cart.filter((_, index) => index !== i))
@@ -938,7 +881,6 @@ export default function Page() {
 ========================= */}
             <div style={{ marginTop: 20 }}>
               <h4>Comment souhaitez-vous recevoir votre commande ?</h4>
-
               <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
                 <button
                   style={{
@@ -951,7 +893,6 @@ export default function Page() {
                 >
                   📧 Par email
                 </button>
-
                 <button
                   style={{
                     ...styles.cartBtn,
@@ -965,7 +906,6 @@ export default function Page() {
                 </button>
               </div>
             </div>
-
             {/* =========================
     PARTIE 3 — RENOUVELLEMENT
 ========================= */}
@@ -974,7 +914,6 @@ export default function Page() {
                 Vous avez déjà un compte pour ce service que vous souhaitez
                 renouveler ?
               </p>
-
               <button
                 style={{ ...styles.validateBtn, background: "#ff9f2d" }}
                 onClick={() => setIsRenewOpen(true)}
@@ -982,13 +921,11 @@ export default function Page() {
                 🔁 Compte à conserver
               </button>
             </div>
-
             {/* =========================
     PARTIE 4 — MÉTHODE DE PAIEMENT
 ========================= */}
             <div style={{ marginTop: 22 }}>
               <h4>Choisissez votre méthode de paiement :</h4>
-
               <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
                 <button
                   style={{
@@ -1001,7 +938,6 @@ export default function Page() {
                 >
                   🌊 Wave
                 </button>
-
                 <button
                   style={{
                     ...styles.cartBtn,
@@ -1015,10 +951,8 @@ export default function Page() {
                 </button>
               </div>
             </div>
-
             <div style={styles.cartActions}>
               <button onClick={() => setIsCartOpen(false)}>Annuler</button>
-
               <button
                 style={styles.validateBtn}
                 onClick={() => {
@@ -1026,7 +960,6 @@ export default function Page() {
                     alert("Veuillez choisir la réception et le paiement");
                     return;
                   }
-
                   // 👉 ICI PayTech (étape suivante)
                   setIsCartOpen(false);
                   setIsPaymentOpen(true);
@@ -1042,14 +975,12 @@ export default function Page() {
         <div style={styles.cartOverlay}>
           <div style={styles.cartPopup}>
             <h3>🔁 Renouveler un compte existant</h3>
-
             <button
               style={{ ...styles.cartBtn, marginBottom: 12 }}
               onClick={() => setIsRenewOpen(false)}
             >
               Je préfère avoir de nouveaux accès
             </button>
-
             <div
               style={{
                 background: "#111827",
@@ -1063,14 +994,12 @@ export default function Page() {
               ⚠️ Si votre abonnement est déjà expiré, nous ne pouvons pas
               garantir la disponibilité de vos accès actuels.
             </div>
-
             <input
               placeholder="Email du compte existant"
               value={renewEmail}
               onChange={(e) => setRenewEmail(e.target.value)}
               style={styles.searchInput}
             />
-
             <input
               type="password"
               placeholder="Mot de passe du compte existant"
@@ -1078,10 +1007,8 @@ export default function Page() {
               onChange={(e) => setRenewPassword(e.target.value)}
               style={{ ...styles.searchInput, marginTop: 10 }}
             />
-
             <div style={styles.cartActions}>
               <button onClick={() => setIsRenewOpen(false)}>Annuler</button>
-
               <button
                 style={styles.validateBtn}
                 onClick={() => {
@@ -1089,7 +1016,6 @@ export default function Page() {
                     alert("Veuillez choisir la réception et le paiement");
                     return;
                   }
-
                   setIsPaymentOpen(true);
                 }}
               >
@@ -1099,14 +1025,12 @@ export default function Page() {
           </div>
         </div>
       )}
-
       {isPaymentOpen && (
         <div style={styles.cartOverlay}>
           <div style={styles.cartPopup}>
             <h3>
               Paiement par {paymentMethod === "wave" ? "Wave" : "Orange Money"}
             </h3>
-
             <div style={{ textAlign: "center", margin: "20px 0" }}>
               <img
                 src={
@@ -1116,7 +1040,6 @@ export default function Page() {
                 style={{ width: 220, height: 220 }}
               />
             </div>
-
             <div
               style={{
                 background: "#e9f5ff",
@@ -1142,7 +1065,6 @@ export default function Page() {
               <button
                 onClick={() => {
                   const message = encodeURIComponent(generateOrderMessage());
-
                   if (deliveryMethod === "whatsapp") {
                     window.open(
                       `https://wa.me/221781242647?text=${message}`,
@@ -1172,7 +1094,6 @@ export default function Page() {
                 📩 Recevoir mon bon de commande
               </button>
             </div>
-
             <div style={{ marginTop: 16 }}>
               <button
                 style={styles.validateBtn}
@@ -1193,7 +1114,6 @@ export default function Page() {
             <h3 style={{ textAlign: "center" }}>
               ✅ Paiement en cours de traitement
             </h3>
-
             <div
               style={{
                 background: "#ecfeff",
@@ -1214,7 +1134,6 @@ export default function Page() {
               <b> votre bon de commande</b> par{" "}
               <b>{deliveryMethod === "email" ? "email" : "WhatsApp"}</b>.
             </div>
-
             <button
               style={{ ...styles.validateBtn, marginTop: 18 }}
               onClick={() => setIsConfirmationOpen(false)}
@@ -1227,7 +1146,6 @@ export default function Page() {
     </main>
   );
 }
-
 const styles: Record<string, React.CSSProperties> = {
   page: {
     minHeight: "100vh",
@@ -1244,7 +1162,6 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "center",
     zIndex: 1000,
   },
-
   cartPopup: {
     background: "white",
     borderRadius: 18,
@@ -1252,7 +1169,6 @@ const styles: Record<string, React.CSSProperties> = {
     width: "min(420px, 92vw)",
     boxShadow: "0 25px 60px rgba(0,0,0,0.25)",
   },
-
   cartItem: {
     display: "flex",
     justifyContent: "space-between",
@@ -1260,7 +1176,6 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "10px 0",
     borderBottom: "1px solid rgba(0,0,0,0.06)",
   },
-
   cartActions: {
     display: "flex",
     justifyContent: "space-between",
@@ -1275,7 +1190,6 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     fontWeight: 900,
   },
-
   actionColumn: {
     display: "flex",
     flexDirection: "column",
@@ -1290,7 +1204,6 @@ const styles: Record<string, React.CSSProperties> = {
     color: "white",
     cursor: "pointer",
   },
-
   cartBtn: {
     width: "100%",
     padding: "12px 14px",
@@ -1301,7 +1214,6 @@ const styles: Record<string, React.CSSProperties> = {
     color: "white",
     cursor: "pointer",
   },
-
   validateBtn: {
     width: "100%",
     padding: "12px 14px",
@@ -1311,7 +1223,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 900,
     cursor: "pointer",
   },
-
   /* HEADER */
   header: {
     background: "white",
@@ -1332,7 +1243,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   logo: { width: 36, height: 36, objectFit: "contain" },
   brandName: { fontSize: 20, fontWeight: 900 },
-
   nav: { display: "flex", gap: 10, alignItems: "center" },
   navBtn: {
     padding: "8px 14px",
@@ -1350,7 +1260,6 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#111827",
     fontWeight: 900,
   },
-
   actions: { display: "flex", gap: 10 },
   loginBtn: {
     padding: "10px 18px",
@@ -1360,7 +1269,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 800,
     cursor: "pointer",
   },
-
   /* TOP */
   topSection: {
     textAlign: "center",
@@ -1372,7 +1280,6 @@ const styles: Record<string, React.CSSProperties> = {
     margin: "6px 0 6px 0",
   },
   subtitle: { color: "#64748B", margin: 0 },
-
   topControls: {
     marginTop: 18,
     display: "flex",
@@ -1399,7 +1306,6 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "6px 8px",
   },
   searchIcon: { opacity: 0.6, padding: "0 6px" },
-
   sortWrap: {
     display: "flex",
     alignItems: "center",
@@ -1418,7 +1324,6 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     background: "transparent",
   },
-
   /* LAYOUT */
   layout: {
     display: "grid",
@@ -1427,7 +1332,6 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "start",
     marginTop: 16,
   },
-
   /* SIDEBAR */
   sidebar: {
     background: "white",
@@ -1459,14 +1363,12 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid rgba(30,144,255,0.25)",
     boxShadow: "0 10px 25px rgba(30,144,255,0.12)",
   },
-
   /* GRID */
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
     gap: 18,
   },
-
   /* PRODUCT CARD */
   productCard: {
     background: "white",
@@ -1512,9 +1414,7 @@ const styles: Record<string, React.CSSProperties> = {
   productInfo: { flex: 1 },
   productName: { margin: 0, fontSize: 22, fontWeight: 900 },
   productCategory: { marginTop: 4, color: "#64748B", fontSize: 13 },
-
   offers: { display: "grid", gap: 14 },
-
   offerCard: {
     background: "#f8fafc",
     borderRadius: 16,
@@ -1531,14 +1431,12 @@ const styles: Record<string, React.CSSProperties> = {
   offerType: { fontWeight: 900 },
   offerDuration: { fontWeight: 800, color: "#111827" },
   offerPrice: { fontWeight: 900 },
-
   offerDesc: {
     margin: "6px 0 12px",
     color: "#475569",
     lineHeight: 1.4,
     fontSize: 14,
   },
-
   subscribeBtn: {
     width: "100%",
     padding: "12px 14px",
@@ -1548,7 +1446,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 900,
     cursor: "pointer",
   },
-
   /* =========================
      CONTACT BLOCK (AJOUT)
      ========================= */

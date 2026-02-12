@@ -1,26 +1,90 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
 import { auth } from "./firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  deleteUser,
+  signInWithEmailAndPassword
+} from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 export default function Page() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
   const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-  
+
       console.log("Utilisateur connecté :", result.user);
-  
+
       setIsLoginOpen(false); // Ferme le popup
     } catch (error) {
       console.error("Erreur Google Login :", error);
     }
   };
+  const handleRegister = async () => {
+    try {
+      await createUserWithEmailAndPassword(
+        auth,
+        registerEmail,
+        registerPassword
+      );
 
+      alert("Compte créé avec succès ✅");
+      setIsRegisterOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleEmailLogin = async () => {
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        registerEmail,
+        registerPassword
+      );
+  
+      alert("Connexion réussie ✅");
+      setIsLoginOpen(false);
+    } catch (error) {
+      console.error("Erreur login :", error);
+      alert("Email ou mot de passe incorrect");
+    }
+  };
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setIsAccountOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleDeleteAccount = async () => {
+    try {
+      if (auth.currentUser) {
+        await deleteUser(auth.currentUser);
+        setIsAccountOpen(false);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
   const brands = [
     { name: "Netflix", src: "/brands/netflix.png" },
     { name: "Prime Video", src: "/brands/prime-video.png" },
@@ -74,10 +138,21 @@ export default function Page() {
         </nav>
 
         <div style={styles.actions}>
-          <button style={styles.cartBtn}>🛒 Mon panier</button>
-          <button style={styles.loginBtn} onClick={() => setIsLoginOpen(true)}>
-            Connexion
-          </button>
+          {user ? (
+            <button
+              style={styles.loginBtn}
+              onClick={() => setIsAccountOpen(true)}
+            >
+              Mon compte
+            </button>
+          ) : (
+            <button
+              style={styles.loginBtn}
+              onClick={() => setIsLoginOpen(true)}
+            >
+              Connexion
+            </button>
+          )}
         </div>
       </header>
 
@@ -333,30 +408,42 @@ export default function Page() {
 
             <div style={{ margin: "20px 0", textAlign: "center" }}>— ou —</div>
 
-            <input placeholder="Email" style={styles.input} />
+            <input
+              placeholder="Email"
+              style={styles.input}
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+            />
 
             <input
               type="password"
               placeholder="Mot de passe"
               style={styles.input}
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
             />
 
-            <button style={styles.loginSubmit}>Se connecter</button>
+<button
+  style={styles.loginSubmit}
+  onClick={handleEmailLogin}
+>
+  Se connecter
+</button>
 
             <p
-  style={{
-    textAlign: "center",
-    marginTop: 15,
-    cursor: "pointer",
-    color: "#0ea5e9",
-  }}
-  onClick={() => {
-    setIsLoginOpen(false);
-    setIsRegisterOpen(true);
-  }}
->
-  Créer un compte
-</p>
+              style={{
+                textAlign: "center",
+                marginTop: 15,
+                cursor: "pointer",
+                color: "#0ea5e9",
+              }}
+              onClick={() => {
+                setIsLoginOpen(false);
+                setIsRegisterOpen(true);
+              }}
+            >
+              Créer un compte
+            </p>
             <button
               style={styles.closeBtn}
               onClick={() => setIsLoginOpen(false)}
@@ -367,50 +454,83 @@ export default function Page() {
         </div>
       )}
       {isRegisterOpen && (
-  <div style={styles.modalOverlay}>
-    <div style={styles.modalBox}>
-      <h2 style={{ textAlign: "center" }}>Créer un compte</h2>
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalBox}>
+            <h2 style={{ textAlign: "center" }}>Créer un compte</h2>
 
-      <button style={styles.googleBtn} onClick={handleGoogleLogin}>
-        S'inscrire avec Google
-      </button>
+            <button style={styles.googleBtn} onClick={handleGoogleLogin}>
+              S'inscrire avec Google
+            </button>
 
-      <div style={{ margin: "20px 0", textAlign: "center" }}>— ou —</div>
+            <div style={{ margin: "20px 0", textAlign: "center" }}>— ou —</div>
 
-      <input placeholder="Prénom" style={styles.input} />
-      <input placeholder="Nom" style={styles.input} />
-      <input placeholder="WhatsApp" style={styles.input} />
-      <input placeholder="Email" style={styles.input} />
-      <input type="password" placeholder="Mot de passe" style={styles.input} />
+            <input placeholder="Prénom" style={styles.input} />
+            <input placeholder="Nom" style={styles.input} />
+            <input placeholder="WhatsApp" style={styles.input} />
+            <input placeholder="Email" style={styles.input} />
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              style={styles.input}
+            />
 
-      <button style={styles.loginSubmit}>
-        Créer mon compte
-      </button>
+            <button style={styles.loginSubmit} onClick={handleRegister}>
+              Créer mon compte
+            </button>
 
-      <p
-        style={{
-          textAlign: "center",
-          marginTop: 15,
-          cursor: "pointer",
-          color: "#0ea5e9",
-        }}
-        onClick={() => {
-          setIsRegisterOpen(false);
-          setIsLoginOpen(true);
-        }}
-      >
-        Déjà un compte ? Connexion
-      </p>
+            <p
+              style={{
+                textAlign: "center",
+                marginTop: 15,
+                cursor: "pointer",
+                color: "#0ea5e9",
+              }}
+              onClick={() => {
+                setIsRegisterOpen(false);
+                setIsLoginOpen(true);
+              }}
+            >
+              Déjà un compte ? Connexion
+            </p>
 
-      <button
-        style={styles.closeBtn}
-        onClick={() => setIsRegisterOpen(false)}
-      >
-        ✕
-      </button>
-    </div>
-  </div>
-)}
+            <button
+              style={styles.closeBtn}
+              onClick={() => setIsRegisterOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+      {isAccountOpen && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalBox}>
+            <h2 style={{ textAlign: "center" }}>Mon compte</h2>
+
+            <button style={styles.loginSubmit} onClick={handleLogout}>
+              Se déconnecter
+            </button>
+
+            <button
+              style={{
+                ...styles.loginSubmit,
+                background: "#ef4444",
+                marginTop: 15,
+              }}
+              onClick={handleDeleteAccount}
+            >
+              Supprimer le compte
+            </button>
+
+            <button
+              style={styles.closeBtn}
+              onClick={() => setIsAccountOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
