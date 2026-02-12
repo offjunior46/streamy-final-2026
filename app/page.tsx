@@ -3,6 +3,8 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "./firebase";
 import { auth } from "./firebase";
 import {
   GoogleAuthProvider,
@@ -19,6 +21,9 @@ export default function Page() {
   const [user, setUser] = useState(null);
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+const [lastName, setLastName] = useState("");
+const [whatsapp, setWhatsapp] = useState("");
   const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -33,14 +38,25 @@ export default function Page() {
   };
   const handleRegister = async () => {
     try {
-      await createUserWithEmailAndPassword(
+      const userCredential = await createUserWithEmailAndPassword(
         auth,
         registerEmail,
         registerPassword
       );
-
-      alert("Compte créé avec succès ✅");
+  
+      const user = userCredential.user;
+  
+      // 🔵 Sauvegarde dans Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        firstName,
+        lastName,
+        whatsapp,
+        email: registerEmail,
+        createdAt: new Date(),
+      });
+  
       setIsRegisterOpen(false);
+  
     } catch (error) {
       console.error(error);
     }
@@ -464,15 +480,37 @@ export default function Page() {
 
             <div style={{ margin: "20px 0", textAlign: "center" }}>— ou —</div>
 
-            <input placeholder="Prénom" style={styles.input} />
-            <input placeholder="Nom" style={styles.input} />
-            <input placeholder="WhatsApp" style={styles.input} />
-            <input placeholder="Email" style={styles.input} />
             <input
-              type="password"
-              placeholder="Mot de passe"
-              style={styles.input}
-            />
+  placeholder="Prénom"
+  style={styles.input}
+  value={firstName}
+  onChange={(e) => setFirstName(e.target.value)}
+/>
+<input
+  placeholder="Nom"
+  style={styles.input}
+  value={lastName}
+  onChange={(e) => setLastName(e.target.value)}
+/>
+<input
+  placeholder="WhatsApp"
+  style={styles.input}
+  value={whatsapp}
+  onChange={(e) => setWhatsapp(e.target.value)}
+/>
+<input
+  placeholder="Email"
+  style={styles.input}
+  value={registerEmail}
+  onChange={(e) => setRegisterEmail(e.target.value)}
+/>
+<input
+  type="password"
+  placeholder="Mot de passe"
+  style={styles.input}
+  value={registerPassword}
+  onChange={(e) => setRegisterPassword(e.target.value)}
+/>
 
             <button style={styles.loginSubmit} onClick={handleRegister}>
               Créer mon compte
