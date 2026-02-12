@@ -1,5 +1,5 @@
 "use client";
-
+import { User } from "firebase/auth";
 import React, { useMemo, useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
@@ -11,19 +11,19 @@ import {
   signInWithPopup,
   signOut,
   deleteUser,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 export default function Page() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [firstName, setFirstName] = useState("");
-const [lastName, setLastName] = useState("");
-const [whatsapp, setWhatsapp] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -43,10 +43,9 @@ const [whatsapp, setWhatsapp] = useState("");
         registerEmail,
         registerPassword
       );
-  
+
       const user = userCredential.user;
-  
-      // 🔵 Sauvegarde dans Firestore
+
       await setDoc(doc(db, "users", user.uid), {
         firstName,
         lastName,
@@ -54,21 +53,22 @@ const [whatsapp, setWhatsapp] = useState("");
         email: registerEmail,
         createdAt: new Date(),
       });
-  
+
       setIsRegisterOpen(false);
-  
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        alert("Cet email est déjà utilisé.");
+      } else if (error.code === "auth/weak-password") {
+        alert("Le mot de passe est trop faible.");
+      } else {
+        alert("Une erreur est survenue.");
+      }
     }
   };
   const handleEmailLogin = async () => {
     try {
-      await signInWithEmailAndPassword(
-        auth,
-        registerEmail,
-        registerPassword
-      );
-  
+      await signInWithEmailAndPassword(auth, registerEmail, registerPassword);
+
       alert("Connexion réussie ✅");
       setIsLoginOpen(false);
     } catch (error) {
@@ -439,12 +439,9 @@ const [whatsapp, setWhatsapp] = useState("");
               onChange={(e) => setRegisterPassword(e.target.value)}
             />
 
-<button
-  style={styles.loginSubmit}
-  onClick={handleEmailLogin}
->
-  Se connecter
-</button>
+            <button style={styles.loginSubmit} onClick={handleEmailLogin}>
+              Se connecter
+            </button>
 
             <p
               style={{
@@ -481,36 +478,36 @@ const [whatsapp, setWhatsapp] = useState("");
             <div style={{ margin: "20px 0", textAlign: "center" }}>— ou —</div>
 
             <input
-  placeholder="Prénom"
-  style={styles.input}
-  value={firstName}
-  onChange={(e) => setFirstName(e.target.value)}
-/>
-<input
-  placeholder="Nom"
-  style={styles.input}
-  value={lastName}
-  onChange={(e) => setLastName(e.target.value)}
-/>
-<input
-  placeholder="WhatsApp"
-  style={styles.input}
-  value={whatsapp}
-  onChange={(e) => setWhatsapp(e.target.value)}
-/>
-<input
-  placeholder="Email"
-  style={styles.input}
-  value={registerEmail}
-  onChange={(e) => setRegisterEmail(e.target.value)}
-/>
-<input
-  type="password"
-  placeholder="Mot de passe"
-  style={styles.input}
-  value={registerPassword}
-  onChange={(e) => setRegisterPassword(e.target.value)}
-/>
+              placeholder="Prénom"
+              style={styles.input}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+            <input
+              placeholder="Nom"
+              style={styles.input}
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+            <input
+              placeholder="WhatsApp"
+              style={styles.input}
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+            />
+            <input
+              placeholder="Email"
+              style={styles.input}
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              style={styles.input}
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
+            />
 
             <button style={styles.loginSubmit} onClick={handleRegister}>
               Créer mon compte
