@@ -12,9 +12,10 @@ export default function Page() {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-
+  
       console.log("Utilisateur connecté :", result.user);
-      alert("Connexion réussie avec Google ✅");
+  
+      setIsLoginOpen(false); // Ferme le popup
     } catch (error) {
       console.error("Erreur Google Login :", error);
     }
@@ -342,6 +343,20 @@ export default function Page() {
 
             <button style={styles.loginSubmit}>Se connecter</button>
 
+            <p
+  style={{
+    textAlign: "center",
+    marginTop: 15,
+    cursor: "pointer",
+    color: "#0ea5e9",
+  }}
+  onClick={() => {
+    setIsLoginOpen(false);
+    setIsRegisterOpen(true);
+  }}
+>
+  Créer un compte
+</p>
             <button
               style={styles.closeBtn}
               onClick={() => setIsLoginOpen(false)}
@@ -351,6 +366,51 @@ export default function Page() {
           </div>
         </div>
       )}
+      {isRegisterOpen && (
+  <div style={styles.modalOverlay}>
+    <div style={styles.modalBox}>
+      <h2 style={{ textAlign: "center" }}>Créer un compte</h2>
+
+      <button style={styles.googleBtn} onClick={handleGoogleLogin}>
+        S'inscrire avec Google
+      </button>
+
+      <div style={{ margin: "20px 0", textAlign: "center" }}>— ou —</div>
+
+      <input placeholder="Prénom" style={styles.input} />
+      <input placeholder="Nom" style={styles.input} />
+      <input placeholder="WhatsApp" style={styles.input} />
+      <input placeholder="Email" style={styles.input} />
+      <input type="password" placeholder="Mot de passe" style={styles.input} />
+
+      <button style={styles.loginSubmit}>
+        Créer mon compte
+      </button>
+
+      <p
+        style={{
+          textAlign: "center",
+          marginTop: 15,
+          cursor: "pointer",
+          color: "#0ea5e9",
+        }}
+        onClick={() => {
+          setIsRegisterOpen(false);
+          setIsLoginOpen(true);
+        }}
+      >
+        Déjà un compte ? Connexion
+      </p>
+
+      <button
+        style={styles.closeBtn}
+        onClick={() => setIsRegisterOpen(false)}
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+)}
     </main>
   );
 }
