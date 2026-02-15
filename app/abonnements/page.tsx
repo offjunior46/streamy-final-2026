@@ -784,7 +784,7 @@ export default function Page() {
                             </button>
                             <button
                               style={styles.validateBtn}
-                              onClick={() => alert("Passer au paiement")}
+                              onClick={() => handleOrder(p.name, o.price)}
                             >
                               Valider
                             </button>
