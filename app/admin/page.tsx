@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { auth, db } from "@/firebase";
+import { auth, db } from "@/app/firebase"; // ⚠️ IMPORTANT
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -25,13 +26,23 @@ export default function AdminPage() {
       if (userSnap.exists() && userSnap.data().role === "admin") {
         setIsAdmin(true);
 
-        const querySnapshot = await getDocs(collection(db, "users"));
-        const usersList = querySnapshot.docs.map((doc) => ({
+        // 🔹 Charger utilisateurs
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const usersList = usersSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
         setUsers(usersList);
+
+        // 🔹 Charger commandes
+        const ordersSnapshot = await getDocs(collection(db, "orders"));
+        const ordersList = ordersSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setOrders(ordersList);
       } else {
         router.push("/");
       }
@@ -48,8 +59,9 @@ export default function AdminPage() {
 
   return (
     <div style={{ padding: "40px" }}>
-      <h1>Espace Administrateur</h1>
+      <h1 style={{ marginBottom: "30px" }}>Espace Administrateur</h1>
 
+      {/* 🔹 UTILISATEURS */}
       <h2>Utilisateurs inscrits</h2>
 
       {users.map((user) => (
@@ -72,6 +84,33 @@ export default function AdminPage() {
           </p>
           <p>
             <strong>Rôle :</strong> {user.role || "user"}
+          </p>
+        </div>
+      ))}
+
+      {/* 🔹 COMMANDES */}
+      <h2 style={{ marginTop: "40px" }}>Commandes</h2>
+
+      {orders.map((order) => (
+        <div
+          key={order.id}
+          style={{
+            border: "1px solid #4CAF50",
+            padding: "10px",
+            marginBottom: "10px",
+          }}
+        >
+          <p>
+            <strong>Service :</strong> {order.serviceName}
+          </p>
+          <p>
+            <strong>Prix :</strong> {order.price} FCFA
+          </p>
+          <p>
+            <strong>Email client :</strong> {order.email}
+          </p>
+          <p>
+            <strong>Status :</strong> {order.status}
           </p>
         </div>
       ))}
