@@ -1,4 +1,6 @@
 "use client";
+import { createOrder } from "@/app/services/order";
+import { auth } from "@/app/firebase";
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 type PlanType = "solo" | "co";
@@ -500,6 +502,24 @@ export default function Page() {
     return all;
   }, [products]);
   const [query, setQuery] = useState("");
+  const handleOrder = async (serviceName: string, price: number) => {
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("Connecte-toi d'abord");
+      return;
+    }
+
+    await createOrder(
+      user.uid,
+      user.email,
+      serviceName,
+      price,
+      "Non renseigné"
+    );
+
+    alert("Commande envoyée ✅");
+  };
   const [activeCategory, setActiveCategory] =
     useState<string>("Tous les produits");
   const [sort, setSort] = useState<"pop" | "az" | "price_asc" | "price_desc">(
@@ -645,7 +665,7 @@ export default function Page() {
             onClick={() => setIsCartOpen(true)}
           >
             🛒 Panier ({cart.length})
-          </button>  
+          </button>
         </div>
       </header>
       {/* =========================
