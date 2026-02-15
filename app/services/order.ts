@@ -1,5 +1,5 @@
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { auth } from "../../firebase";
+import { db } from "../firebase";
 
 export const createOrder = async (
   userId: string,

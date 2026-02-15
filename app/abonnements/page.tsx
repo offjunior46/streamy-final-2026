@@ -975,18 +975,45 @@ export default function Page() {
               <button onClick={() => setIsCartOpen(false)}>Annuler</button>
               <button
                 style={styles.validateBtn}
-                onClick={() => {
-                  if (!deliveryMethod || !paymentMethod) {
-                    alert("Veuillez choisir la réception et le paiement");
-                    return;
+                onClick={async () => {
+                  try {
+                    if (!deliveryMethod || !paymentMethod) {
+                      alert("Veuillez choisir la réception et le paiement");
+                      return;
+                    }
+
+                    const user = auth.currentUser;
+
+                    if (!user) {
+                      alert("Connecte-toi d'abord");
+                      return;
+                    }
+
+                    // 🔥 ENREGISTRE CHAQUE ARTICLE DU PANIER
+                    for (const item of cart) {
+                      await createOrder(
+                        user.uid,
+                        user.email,
+                        item.productName,
+                        item.price,
+                        "Non renseigné"
+                      );
+                    }
+
+                    console.log("✅ Commande enregistrée");
+
+                    // 🔓 OUVERTURE DU POPUP PAIEMENT
+                    setIsCartOpen(false);
+                    setIsPaymentOpen(true);
+                  } catch (error) {
+                    console.error("❌ Erreur commande :", error);
+                    alert("Erreur lors de l'enregistrement de la commande");
                   }
-                  // 👉 ICI PayTech (étape suivante)
-                  setIsCartOpen(false);
-                  setIsPaymentOpen(true);
                 }}
               >
                 🔵 Payer
               </button>
+              Greg
             </div>
           </div>
         </div>
