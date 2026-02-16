@@ -11,7 +11,6 @@ import {
   updateDoc,
   deleteDoc,
   arrayUnion,
-  Timestamp,
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
@@ -33,9 +32,16 @@ export default function AdminPage() {
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
-      if (userSnap.exists() && userSnap.data().role === "admin") {
+      // ✅ ADMIN PRINCIPAL FIXE
+      const isMainAdmin = user.email === "contactstreamy.sn@gmail.com";
+
+      // ✅ ADMIN PAR ROLE FIRESTORE
+      const isRoleAdmin = userSnap.exists() && userSnap.data().role === "admin";
+
+      if (isMainAdmin || isRoleAdmin) {
         setIsAdmin(true);
 
+        // Charger users
         const usersSnapshot = await getDocs(collection(db, "users"));
         setUsers(
           usersSnapshot.docs.map((doc) => ({
@@ -44,6 +50,7 @@ export default function AdminPage() {
           }))
         );
 
+        // Charger commandes
         const ordersSnapshot = await getDocs(collection(db, "orders"));
         setOrders(
           ordersSnapshot.docs.map((doc) => ({
@@ -61,45 +68,41 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [router]);
 
-  if (loading) return <p style={{ padding: 40 }}>Chargement...</p>;
+  if (loading) return <p style={{ padding: "40px" }}>Chargement...</p>;
   if (!isAdmin) return null;
 
-  // ===============================
-  // 🔥 VALIDER COMMANDE
-  // ===============================
-
+  // 🔥 VALIDATION COMMANDE
   const validateOrder = async (order: any) => {
     try {
       const orderRef = doc(db, "orders", order.id);
-      const userRef = doc(db, "users", order.userId);
 
       const startDate = new Date();
       const endDate = new Date(startDate);
 
-      // Snapchat+ = 3 mois
+      // 📅 1 mois sauf Snapchat+ = 3 mois
       if (order.serviceName === "Snapchat+") {
         endDate.setMonth(endDate.getMonth() + 3);
       } else {
         endDate.setMonth(endDate.getMonth() + 1);
       }
 
-      // 1️⃣ Passer commande en paid
       await updateDoc(orderRef, {
         status: "paid",
       });
 
-      // 2️⃣ Ajouter abonnement
+      const userRef = doc(db, "users", order.userId);
+
       await updateDoc(userRef, {
         subscriptions: arrayUnion({
           serviceName: order.serviceName,
           price: order.price,
-          startDate: Timestamp.fromDate(startDate),
-          endDate: Timestamp.fromDate(endDate),
+          startDate,
+          endDate,
           status: "active",
         }),
       });
 
-      alert("Commande validée et abonnement activé ✅");
+      alert("Commande validée ✅");
 
       setOrders((prev) =>
         prev.map((o) => (o.id === order.id ? { ...o, status: "paid" } : o))
@@ -110,10 +113,6 @@ export default function AdminPage() {
     }
   };
 
-  // ===============================
-  // 🗑 SUPPRIMER COMMANDE
-  // ===============================
-
   const removeOrder = async (id: string) => {
     try {
       await deleteDoc(doc(db, "orders", id));
@@ -123,42 +122,6 @@ export default function AdminPage() {
     }
   };
 
-  // ===============================
-  // 🔄 RENOUVELLEMENT MANUEL
-  // ===============================
-
-  const renewSubscription = async (userId: string, subscription: any) => {
-    try {
-      const userRef = doc(db, "users", userId);
-
-      const newEndDate = new Date(subscription.endDate.toDate());
-
-      if (subscription.serviceName === "Snapchat+") {
-        newEndDate.setMonth(newEndDate.getMonth() + 3);
-      } else {
-        newEndDate.setMonth(newEndDate.getMonth() + 1);
-      }
-
-      await updateDoc(userRef, {
-        subscriptions: arrayUnion({
-          serviceName: subscription.serviceName,
-          price: subscription.price,
-          startDate: Timestamp.now(),
-          endDate: Timestamp.fromDate(newEndDate),
-          status: "active",
-        }),
-      });
-
-      alert("Renouvellement effectué ✅");
-    } catch (error) {
-      alert("Erreur renouvellement");
-    }
-  };
-
-  // ===============================
-  // FILTRE
-  // ===============================
-
   const filteredOrders =
     filter === "all"
       ? orders
@@ -166,16 +129,12 @@ export default function AdminPage() {
           filter === "pending" ? o.status === "pending" : o.status === "paid"
         );
 
-  // ===============================
-  // RENDER
-  // ===============================
-
   return (
-    <div style={{ padding: 40 }}>
-      <h1 style={{ marginBottom: 30 }}>Espace Administrateur</h1>
+    <div style={{ padding: "40px" }}>
+      <h1 style={{ marginBottom: "30px" }}>Espace Administrateur</h1>
 
       {/* STATS */}
-      <div style={{ display: "flex", gap: 20, marginBottom: 30 }}>
+      <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
         <div>
           <strong>Total utilisateurs</strong>
           <p>{users.length}</p>
@@ -191,13 +150,12 @@ export default function AdminPage() {
       </div>
 
       {/* FILTRE */}
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: "20px" }}>
         <button onClick={() => setFilter("all")}>Tous</button>
         <button onClick={() => setFilter("pending")}>En attente</button>
         <button onClick={() => setFilter("paid")}>Payées</button>
       </div>
 
-      {/* COMMANDES */}
       <h2>Commandes</h2>
 
       {filteredOrders.map((order) => (
@@ -205,8 +163,8 @@ export default function AdminPage() {
           key={order.id}
           style={{
             border: "1px solid #ccc",
-            padding: 10,
-            marginBottom: 10,
+            padding: "10px",
+            marginBottom: "10px",
           }}
         >
           <p>
@@ -230,7 +188,11 @@ export default function AdminPage() {
           {order.status === "pending" && (
             <>
               <button
-                style={{ background: "green", color: "white", marginRight: 10 }}
+                style={{
+                  background: "green",
+                  color: "white",
+                  marginRight: "10px",
+                }}
                 onClick={() => validateOrder(order)}
               >
                 ✔ Valider
