@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import { auth, db } from "@/app/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import {
-  doc,
-  getDoc,
   collection,
   getDocs,
+  doc,
   updateDoc,
   deleteDoc,
   arrayUnion,
@@ -15,12 +14,13 @@ import {
 import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [filter, setFilter] = useState("all");
-  const router = useRouter();
+
+  const ADMIN_EMAIL = "contactstreamy.sn@gmail.com";
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -29,37 +29,20 @@ export default function AdminPage() {
         return;
       }
 
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      // ✅ ADMIN PRINCIPAL FIXE
-      const isMainAdmin = user.email === "contactstreamy.sn@gmail.com";
-
-      // ✅ ADMIN PAR ROLE FIRESTORE
-      const isRoleAdmin = userSnap.exists() && userSnap.data().role === "admin";
-
-      if (isMainAdmin || isRoleAdmin) {
-        setIsAdmin(true);
-
-        // Charger users
-        const usersSnapshot = await getDocs(collection(db, "users"));
-        setUsers(
-          usersSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-        );
-
-        // Charger commandes
-        const ordersSnapshot = await getDocs(collection(db, "orders"));
-        setOrders(
-          ordersSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-        );
-      } else {
+      if (user.email !== ADMIN_EMAIL) {
         router.push("/");
+        return;
+      }
+
+      try {
+        const snapshot = await getDocs(collection(db, "orders"));
+        const list = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setOrders(list);
+      } catch (error) {
+        console.error(error);
       }
 
       setLoading(false);
@@ -68,103 +51,70 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [router]);
 
-  if (loading) return <p style={{ padding: "40px" }}>Chargement...</p>;
-  if (!isAdmin) return null;
-
-  // 🔥 VALIDATION COMMANDE
+  // 🔥 Validation commande + création abonnement
   const validateOrder = async (order: any) => {
-    try {
-      const orderRef = doc(db, "orders", order.id);
+    const startDate = new Date();
+    const endDate = new Date(startDate);
 
-      const startDate = new Date();
-      const endDate = new Date(startDate);
-
-      // 📅 1 mois sauf Snapchat+ = 3 mois
-      if (order.serviceName === "Snapchat+") {
-        endDate.setMonth(endDate.getMonth() + 3);
-      } else {
-        endDate.setMonth(endDate.getMonth() + 1);
-      }
-
-      await updateDoc(orderRef, {
-        status: "paid",
-      });
-
-      const userRef = doc(db, "users", order.userId);
-
-      await updateDoc(userRef, {
-        subscriptions: arrayUnion({
-          serviceName: order.serviceName,
-          price: order.price,
-          startDate,
-          endDate,
-          status: "active",
-        }),
-      });
-
-      alert("Commande validée ✅");
-
-      setOrders((prev) =>
-        prev.map((o) => (o.id === order.id ? { ...o, status: "paid" } : o))
-      );
-    } catch (error) {
-      console.error(error);
-      alert("Erreur validation");
+    if (order.serviceName === "Snapchat+") {
+      endDate.setMonth(endDate.getMonth() + 3);
+    } else {
+      endDate.setMonth(endDate.getMonth() + 1);
     }
+
+    await updateDoc(doc(db, "orders", order.id), {
+      status: "paid",
+    });
+
+    await updateDoc(doc(db, "users", order.userId), {
+      subscriptions: arrayUnion({
+        serviceName: order.serviceName,
+        price: order.price,
+        startDate,
+        endDate,
+        status: "active",
+      }),
+    });
+
+    setOrders((prev) =>
+      prev.map((o) => (o.id === order.id ? { ...o, status: "paid" } : o))
+    );
   };
 
-  const removeOrder = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, "orders", id));
-      setOrders((prev) => prev.filter((o) => o.id !== id));
-    } catch (error) {
-      alert("Erreur suppression");
-    }
+  const removeOrder = async (orderId: string) => {
+    await deleteDoc(doc(db, "orders", orderId));
+    setOrders((prev) => prev.filter((o) => o.id !== orderId));
   };
+
+  if (loading) {
+    return <div style={{ padding: 40 }}>Chargement...</div>;
+  }
 
   const filteredOrders =
-    filter === "all"
-      ? orders
-      : orders.filter((o) =>
-          filter === "pending" ? o.status === "pending" : o.status === "paid"
-        );
+    filter === "all" ? orders : orders.filter((o) => o.status === filter);
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1 style={{ marginBottom: "30px" }}>Espace Administrateur</h1>
+    <div style={{ padding: 40 }}>
+      <h1>Espace Administrateur</h1>
 
-      {/* STATS */}
-      <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
-        <div>
-          <strong>Total utilisateurs</strong>
-          <p>{users.length}</p>
-        </div>
-        <div>
-          <strong>Total commandes</strong>
-          <p>{orders.length}</p>
-        </div>
-        <div>
-          <strong>En attente</strong>
-          <p>{orders.filter((o) => o.status === "pending").length}</p>
-        </div>
-      </div>
-
-      {/* FILTRE */}
-      <div style={{ marginBottom: "20px" }}>
+      {/* Filtres */}
+      <div style={{ marginTop: 20 }}>
         <button onClick={() => setFilter("all")}>Tous</button>
         <button onClick={() => setFilter("pending")}>En attente</button>
         <button onClick={() => setFilter("paid")}>Payées</button>
       </div>
 
-      <h2>Commandes</h2>
+      <h2 style={{ marginTop: 30 }}>Commandes</h2>
+
+      {filteredOrders.length === 0 && <p>Aucune commande</p>}
 
       {filteredOrders.map((order) => (
         <div
           key={order.id}
           style={{
             border: "1px solid #ccc",
-            padding: "10px",
-            marginBottom: "10px",
+            padding: 15,
+            marginBottom: 10,
           }}
         >
           <p>
@@ -179,33 +129,24 @@ export default function AdminPage() {
           <p>
             <strong>Status :</strong>{" "}
             <span
-              style={{ color: order.status === "paid" ? "green" : "orange" }}
+              style={{
+                color: order.status === "paid" ? "green" : "orange",
+              }}
             >
               {order.status}
             </span>
           </p>
 
-          {order.status === "pending" && (
-            <>
-              <button
-                style={{
-                  background: "green",
-                  color: "white",
-                  marginRight: "10px",
-                }}
-                onClick={() => validateOrder(order)}
-              >
-                ✔ Valider
-              </button>
-
-              <button
-                style={{ background: "red", color: "white" }}
-                onClick={() => removeOrder(order.id)}
-              >
-                🗑 Supprimer
-              </button>
-            </>
+          {order.status !== "paid" && (
+            <button
+              onClick={() => validateOrder(order)}
+              style={{ marginRight: 10 }}
+            >
+              ✔ Valider
+            </button>
           )}
+
+          <button onClick={() => removeOrder(order.id)}>🗑 Supprimer</button>
         </div>
       ))}
     </div>
