@@ -7,6 +7,7 @@ import {
   collection,
   getDocs,
   doc,
+  getDoc,
   updateDoc,
   deleteDoc,
   arrayUnion,
@@ -17,11 +18,14 @@ export default function AdminPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [orders, setOrders] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [filter, setFilter] = useState("all");
 
-  const ADMIN_EMAIL = "contactstreamy.sn@gmail.com";
+  const MAIN_ADMIN_EMAIL = "contactstreamy.sn@gmail.com";
 
+  // 🔐 Vérification admin
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -29,20 +33,41 @@ export default function AdminPage() {
         return;
       }
 
-      if (user.email !== ADMIN_EMAIL) {
-        router.push("/");
-        return;
-      }
-
       try {
-        const snapshot = await getDocs(collection(db, "orders"));
-        const list = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setOrders(list);
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        const isMainAdmin = user.email === MAIN_ADMIN_EMAIL;
+        const isRoleAdmin =
+          userSnap.exists() && userSnap.data().role === "admin";
+
+        if (!isMainAdmin && !isRoleAdmin) {
+          router.push("/");
+          return;
+        }
+
+        setIsAdmin(true);
+
+        // Charger utilisateurs
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        setUsers(
+          usersSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+        );
+
+        // Charger commandes
+        const ordersSnapshot = await getDocs(collection(db, "orders"));
+        setOrders(
+          ordersSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+        );
       } catch (error) {
         console.error(error);
+        router.push("/");
       }
 
       setLoading(false);
@@ -51,44 +76,61 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [router]);
 
-  // 🔥 Validation commande + création abonnement
+  if (loading) return <div style={{ padding: 40 }}>Chargement...</div>;
+  if (!isAdmin) return null;
+
+  // 🔥 Valider commande
   const validateOrder = async (order: any) => {
-    const startDate = new Date();
-    const endDate = new Date(startDate);
+    try {
+      const startDate = new Date();
+      const endDate = new Date(startDate);
 
-    if (order.serviceName === "Snapchat+") {
-      endDate.setMonth(endDate.getMonth() + 3);
-    } else {
-      endDate.setMonth(endDate.getMonth() + 1);
+      if (order.serviceName === "Snapchat+") {
+        endDate.setMonth(endDate.getMonth() + 3);
+      } else {
+        endDate.setMonth(endDate.getMonth() + 1);
+      }
+
+      // Mettre commande paid
+      await updateDoc(doc(db, "orders", order.id), {
+        status: "paid",
+        validatedAt: new Date(),
+      });
+
+      // Ajouter abonnement au user
+      await updateDoc(doc(db, "users", order.userId), {
+        subscriptions: arrayUnion({
+          serviceName: order.serviceName,
+          price: order.price,
+          startDate,
+          endDate,
+          status: "active",
+        }),
+      });
+
+      alert("Commande validée ✅");
+
+      // Refresh local
+      setOrders((prev) =>
+        prev.map((o) => (o.id === order.id ? { ...o, status: "paid" } : o))
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Erreur validation");
     }
-
-    await updateDoc(doc(db, "orders", order.id), {
-      status: "paid",
-    });
-
-    await updateDoc(doc(db, "users", order.userId), {
-      subscriptions: arrayUnion({
-        serviceName: order.serviceName,
-        price: order.price,
-        startDate,
-        endDate,
-        status: "active",
-      }),
-    });
-
-    setOrders((prev) =>
-      prev.map((o) => (o.id === order.id ? { ...o, status: "paid" } : o))
-    );
   };
 
-  const removeOrder = async (orderId: string) => {
-    await deleteDoc(doc(db, "orders", orderId));
-    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+  // 🗑 Supprimer commande
+  const removeOrder = async (id: string) => {
+    await deleteDoc(doc(db, "orders", id));
+    setOrders((prev) => prev.filter((o) => o.id !== id));
   };
 
-  if (loading) {
-    return <div style={{ padding: 40 }}>Chargement...</div>;
-  }
+  // 📊 Stats
+  const totalUsers = users.length;
+  const totalOrders = orders.length;
+  const pendingOrders = orders.filter((o) => o.status === "pending").length;
+  const paidOrders = orders.filter((o) => o.status === "paid").length;
 
   const filteredOrders =
     filter === "all" ? orders : orders.filter((o) => o.status === filter);
@@ -97,14 +139,23 @@ export default function AdminPage() {
     <div style={{ padding: 40 }}>
       <h1>Espace Administrateur</h1>
 
-      {/* Filtres */}
-      <div style={{ marginTop: 20 }}>
+      {/* STATS */}
+      <div style={{ marginTop: 20, marginBottom: 30 }}>
+        <p>Total utilisateurs : {totalUsers}</p>
+        <p>Total commandes : {totalOrders}</p>
+        <p>En attente : {pendingOrders}</p>
+        <p>Payées : {paidOrders}</p>
+      </div>
+
+      {/* FILTRE */}
+      <div style={{ marginBottom: 20 }}>
         <button onClick={() => setFilter("all")}>Tous</button>
         <button onClick={() => setFilter("pending")}>En attente</button>
         <button onClick={() => setFilter("paid")}>Payées</button>
       </div>
 
-      <h2 style={{ marginTop: 30 }}>Commandes</h2>
+      {/* COMMANDES */}
+      <h2>Commandes</h2>
 
       {filteredOrders.length === 0 && <p>Aucune commande</p>}
 
@@ -114,18 +165,22 @@ export default function AdminPage() {
           style={{
             border: "1px solid #ccc",
             padding: 15,
-            marginBottom: 10,
+            marginBottom: 15,
+            borderRadius: 8,
           }}
         >
           <p>
             <strong>Service :</strong> {order.serviceName}
           </p>
+
           <p>
             <strong>Prix :</strong> {order.price} FCFA
           </p>
+
           <p>
             <strong>Email :</strong> {order.email}
           </p>
+
           <p>
             <strong>Status :</strong>{" "}
             <span
@@ -137,16 +192,30 @@ export default function AdminPage() {
             </span>
           </p>
 
-          {order.status !== "paid" && (
-            <button
-              onClick={() => validateOrder(order)}
-              style={{ marginRight: 10 }}
-            >
-              ✔ Valider
-            </button>
-          )}
+          {order.status === "pending" && (
+            <div style={{ marginTop: 10 }}>
+              <button
+                onClick={() => validateOrder(order)}
+                style={{
+                  background: "green",
+                  color: "white",
+                  marginRight: 10,
+                }}
+              >
+                ✔ Valider
+              </button>
 
-          <button onClick={() => removeOrder(order.id)}>🗑 Supprimer</button>
+              <button
+                onClick={() => removeOrder(order.id)}
+                style={{
+                  background: "red",
+                  color: "white",
+                }}
+              >
+                Supprimer
+              </button>
+            </div>
+          )}
         </div>
       ))}
     </div>
