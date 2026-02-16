@@ -3,6 +3,7 @@ import { User } from "firebase/auth";
 import React, { useMemo, useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { auth } from "./firebase";
@@ -19,6 +20,7 @@ export default function Page() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -545,7 +547,19 @@ export default function Page() {
             <button style={styles.loginSubmit} onClick={handleLogout}>
               Se déconnecter
             </button>
-
+            <button
+              style={{
+                ...styles.loginSubmit,
+                background: "#3b82f6",
+                marginTop: 15,
+              }}
+              onClick={() => {
+                setIsAccountOpen(false);
+                router.push("/mes-commandes");
+              }}
+            >
+              Mes commandes
+            </button>
             <button
               style={{
                 ...styles.loginSubmit,

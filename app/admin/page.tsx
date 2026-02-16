@@ -249,14 +249,19 @@ export default function AdminPage() {
     setNotice("");
 
     try {
-      // 1) set order paid
-      await updateDoc(doc(db, "orders", order.id), { status: "paid" });
-
-      // 2) create subscription (users/{uid}/subscriptions)
+      // Calcul des dates UNE SEULE FOIS
       const start = new Date();
       const months = durationMonthsForService(order.serviceName);
       const end = addMonths(start, months);
 
+      // 1) Update order avec activation + expiration
+      await updateDoc(doc(db, "orders", order.id), {
+        status: "paid",
+        activationDate: Timestamp.fromDate(start),
+        expirationDate: Timestamp.fromDate(end),
+      });
+
+      // 2) Create subscription
       const subPayload = {
         serviceName: order.serviceName,
         price: Number(order.price ?? 0),
@@ -273,7 +278,7 @@ export default function AdminPage() {
         subPayload
       );
 
-      // 3) history (users/{uid}/subscriptionHistory)
+      // 3) History
       await addDoc(
         collection(db, "users", order.userId, "subscriptionHistory"),
         {
@@ -283,30 +288,19 @@ export default function AdminPage() {
         }
       );
 
-      // 4) optional: store small array history in users doc (safe if you want)
-      // (Si tu ne veux pas de champs gros, tu peux enlever)
-      await setDoc(
-        doc(db, "users", order.userId),
-        {
-          subscriptions: arrayUnion({
-            subscriptionId: subRef.id,
-            ...subPayload,
-          }),
-        },
-        { merge: true }
-      );
-
       // UI update
       setOrders((prev) =>
-        prev.map((o) => (o.id === order.id ? { ...o, status: "paid" } : o))
+        prev.map((o) =>
+          o.id === order.id
+            ? {
+                ...o,
+                status: "paid",
+                activationDate: Timestamp.fromDate(start),
+                expirationDate: Timestamp.fromDate(end),
+              }
+            : o
+        )
       );
-      setSubsByUser((prev) => ({
-        ...prev,
-        [order.userId]: [
-          { id: subRef.id, ...(subPayload as any) },
-          ...(prev[order.userId] ?? []),
-        ],
-      }));
 
       setNotice("✅ Commande validée + abonnement activé.");
     } catch (e) {
@@ -661,6 +655,18 @@ export default function AdminPage() {
                   <div style={{ color: "#666", marginTop: 4 }}>
                     Date d'achat :{" "}
                     <strong>{formatDate(order.createdAt)}</strong>
+                    {order.activationDate && (
+                      <div style={{ color: "#666", marginTop: 4 }}>
+                        Date d'activation :{" "}
+                        <strong>{formatDate(order.activationDate)}</strong>
+                      </div>
+                    )}
+                    {order.expirationDate && (
+                      <div style={{ color: "#666", marginTop: 2 }}>
+                        Date d'expiration :{" "}
+                        <strong>{formatDate(order.expirationDate)}</strong>
+                      </div>
+                    )}
                   </div>
                   <div style={{ color: "#666", marginTop: 4 }}>
                     Client : <strong>{getUserLabel(order.userId)}</strong>
