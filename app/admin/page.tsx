@@ -11,6 +11,7 @@ import {
   updateDoc,
   deleteDoc,
   arrayUnion,
+  Timestamp,
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
@@ -36,18 +37,20 @@ export default function AdminPage() {
         setIsAdmin(true);
 
         const usersSnapshot = await getDocs(collection(db, "users"));
-        const usersList = usersSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(usersList);
+        setUsers(
+          usersSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+        );
 
         const ordersSnapshot = await getDocs(collection(db, "orders"));
-        const ordersList = ordersSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setOrders(ordersList);
+        setOrders(
+          ordersSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+        );
       } else {
         router.push("/");
       }
@@ -58,23 +61,40 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [router]);
 
-  if (loading) return <p style={{ padding: "40px" }}>Chargement...</p>;
+  if (loading) return <p style={{ padding: 40 }}>Chargement...</p>;
   if (!isAdmin) return null;
 
-  // 🔥 VALIDER COMMANDE + LIER ABONNEMENT
+  // ===============================
+  // 🔥 VALIDER COMMANDE
+  // ===============================
+
   const validateOrder = async (order: any) => {
     try {
       const orderRef = doc(db, "orders", order.id);
+      const userRef = doc(db, "users", order.userId);
+
+      const startDate = new Date();
+      const endDate = new Date(startDate);
+
+      // Snapchat+ = 3 mois
+      if (order.serviceName === "Snapchat+") {
+        endDate.setMonth(endDate.getMonth() + 3);
+      } else {
+        endDate.setMonth(endDate.getMonth() + 1);
+      }
+
+      // 1️⃣ Passer commande en paid
       await updateDoc(orderRef, {
         status: "paid",
       });
 
-      const userRef = doc(db, "users", order.userId);
+      // 2️⃣ Ajouter abonnement
       await updateDoc(userRef, {
         subscriptions: arrayUnion({
           serviceName: order.serviceName,
           price: order.price,
-          startDate: new Date(),
+          startDate: Timestamp.fromDate(startDate),
+          endDate: Timestamp.fromDate(endDate),
           status: "active",
         }),
       });
@@ -90,7 +110,10 @@ export default function AdminPage() {
     }
   };
 
-  // 🔥 SUPPRIMER COMMANDE
+  // ===============================
+  // 🗑 SUPPRIMER COMMANDE
+  // ===============================
+
   const removeOrder = async (id: string) => {
     try {
       await deleteDoc(doc(db, "orders", id));
@@ -100,7 +123,42 @@ export default function AdminPage() {
     }
   };
 
-  // 🔥 FILTRAGE
+  // ===============================
+  // 🔄 RENOUVELLEMENT MANUEL
+  // ===============================
+
+  const renewSubscription = async (userId: string, subscription: any) => {
+    try {
+      const userRef = doc(db, "users", userId);
+
+      const newEndDate = new Date(subscription.endDate.toDate());
+
+      if (subscription.serviceName === "Snapchat+") {
+        newEndDate.setMonth(newEndDate.getMonth() + 3);
+      } else {
+        newEndDate.setMonth(newEndDate.getMonth() + 1);
+      }
+
+      await updateDoc(userRef, {
+        subscriptions: arrayUnion({
+          serviceName: subscription.serviceName,
+          price: subscription.price,
+          startDate: Timestamp.now(),
+          endDate: Timestamp.fromDate(newEndDate),
+          status: "active",
+        }),
+      });
+
+      alert("Renouvellement effectué ✅");
+    } catch (error) {
+      alert("Erreur renouvellement");
+    }
+  };
+
+  // ===============================
+  // FILTRE
+  // ===============================
+
   const filteredOrders =
     filter === "all"
       ? orders
@@ -108,12 +166,16 @@ export default function AdminPage() {
           filter === "pending" ? o.status === "pending" : o.status === "paid"
         );
 
-  return (
-    <div style={{ padding: "40px" }}>
-      <h1 style={{ marginBottom: "30px" }}>Espace Administrateur</h1>
+  // ===============================
+  // RENDER
+  // ===============================
 
-      {/* 🔢 STATS */}
-      <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
+  return (
+    <div style={{ padding: 40 }}>
+      <h1 style={{ marginBottom: 30 }}>Espace Administrateur</h1>
+
+      {/* STATS */}
+      <div style={{ display: "flex", gap: 20, marginBottom: 30 }}>
         <div>
           <strong>Total utilisateurs</strong>
           <p>{users.length}</p>
@@ -128,14 +190,14 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* 🔘 FILTRE */}
-      <div style={{ marginBottom: "20px" }}>
+      {/* FILTRE */}
+      <div style={{ marginBottom: 20 }}>
         <button onClick={() => setFilter("all")}>Tous</button>
         <button onClick={() => setFilter("pending")}>En attente</button>
         <button onClick={() => setFilter("paid")}>Payées</button>
       </div>
 
-      {/* 📦 COMMANDES */}
+      {/* COMMANDES */}
       <h2>Commandes</h2>
 
       {filteredOrders.map((order) => (
@@ -143,8 +205,8 @@ export default function AdminPage() {
           key={order.id}
           style={{
             border: "1px solid #ccc",
-            padding: "10px",
-            marginBottom: "10px",
+            padding: 10,
+            marginBottom: 10,
           }}
         >
           <p>
@@ -154,7 +216,7 @@ export default function AdminPage() {
             <strong>Prix :</strong> {order.price} FCFA
           </p>
           <p>
-            <strong>Email client :</strong> {order.email}
+            <strong>Email :</strong> {order.email}
           </p>
           <p>
             <strong>Status :</strong>{" "}
@@ -168,11 +230,7 @@ export default function AdminPage() {
           {order.status === "pending" && (
             <>
               <button
-                style={{
-                  background: "green",
-                  color: "white",
-                  marginRight: "10px",
-                }}
+                style={{ background: "green", color: "white", marginRight: 10 }}
                 onClick={() => validateOrder(order)}
               >
                 ✔ Valider
