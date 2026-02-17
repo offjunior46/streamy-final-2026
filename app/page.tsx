@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { auth } from "./firebase";
 import {
@@ -20,6 +20,7 @@ export default function Page() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const router = useRouter();
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
@@ -97,8 +98,21 @@ export default function Page() {
     }
   };
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+
+      if (currentUser) {
+        const userRef = doc(db, "users", currentUser.uid);
+        const snap = await getDoc(userRef);
+
+        if (snap.exists()) {
+          setUserRole(snap.data().role || "user");
+        } else {
+          setUserRole("user");
+        }
+      } else {
+        setUserRole(null);
+      }
     });
 
     return () => unsubscribe();
@@ -555,10 +569,14 @@ export default function Page() {
               }}
               onClick={() => {
                 setIsAccountOpen(false);
-                router.push("/mes-commandes");
+                if (userRole === "admin") {
+                  router.push("/admin");
+                } else {
+                  router.push("/mes-commandes");
+                }
               }}
             >
-              Mes commandes
+              {userRole === "admin" ? "Mon admin" : "Mes commandes"}
             </button>
             <button
               style={{

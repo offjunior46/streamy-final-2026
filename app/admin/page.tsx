@@ -987,6 +987,23 @@ export default function AdminPage() {
           </div>
         </>
       )}
+      {/* BOUTON RETOUR ACCUEIL */}
+      <div style={{ marginTop: 40, textAlign: "center" }}>
+        <button
+          onClick={() => router.push("/")}
+          style={{
+            backgroundColor: "#f59e0b",
+            color: "white",
+            padding: "12px 24px",
+            borderRadius: 8,
+            border: "none",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Retour à l’accueil
+        </button>
+      </div>
     </div>
   );
 }
