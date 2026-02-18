@@ -565,7 +565,6 @@ export default function Page() {
         price: offer.price,
       },
     ]);
-    alert("Ajouté au panier ✅");
   }
   const filtered = useMemo(() => {
     let list = [...products];
@@ -1013,7 +1012,6 @@ export default function Page() {
               >
                 🔵 Payer
               </button>
-              Greg
             </div>
           </div>
         </div>
