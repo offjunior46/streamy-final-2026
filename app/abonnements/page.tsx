@@ -504,24 +504,7 @@ export default function Page() {
     return all;
   }, [products]);
   const [query, setQuery] = useState("");
-  const handleOrder = async (serviceName: string, price: number) => {
-    const user = auth.currentUser;
 
-    if (!user) {
-      alert("Connecte-toi d'abord");
-      return;
-    }
-
-    await createOrder(
-      user.uid,
-      user.email,
-      serviceName,
-      price,
-      "Non renseigné"
-    );
-
-    alert("Commande envoyée ✅");
-  };
   const [activeCategory, setActiveCategory] =
     useState<string>("Tous les produits");
   const [sort, setSort] = useState<"pop" | "az" | "price_asc" | "price_desc">(
@@ -783,9 +766,9 @@ export default function Page() {
                             </button>
                             <button
                               style={styles.validateBtn}
-                              onClick={() => handleOrder(p.name, o.price)}
+                              onClick={() => addToCart(p, o)}
                             >
-                              Valider
+                              Ajouter au panier
                             </button>
                           </div>
                         );
@@ -1116,8 +1099,17 @@ export default function Page() {
             <div style={{ marginTop: 16 }}>
               <button
                 onClick={() => {
+                  const order = JSON.parse(
+                    localStorage.getItem("streamy_order") || "{}"
+                  );
+
                   const message = encodeURIComponent(
-                    "Bonjour Streamy, voici la preuve de paiement de ma commande. Je joins également mon bon de commande."
+                    `Bonjour Streamy 👋
+Voici la preuve de paiement de ma commande.
+
+Numéro de commande : ${order.orderNumber || "N/A"}
+
+Merci.`
                   );
 
                   window.open(
