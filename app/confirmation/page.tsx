@@ -70,7 +70,7 @@ export default function Confirmation() {
           <strong>Date :</strong> {order.date}
         </p>
         <p>
-          <strong>Mode de réception :</strong> {order.deliveryMethod}
+          <strong>Numéro WhatsApp :</strong> {order.whatsappNumber}
         </p>
         <p>
           <strong>Mode de paiement :</strong> {order.paymentMethod}
