@@ -1116,12 +1116,17 @@ Merci.`
                     `https://wa.me/221781242647?text=${message}`,
                     "_blank"
                   );
+
+                  setIsPaymentOpen(false);
+                  setIsCartOpen(false);
+                  setCart([]);
+                  router.push("/confirmation");
                 }}
                 style={{
                   display: "block",
                   width: "100%",
                   textAlign: "center",
-                  background: "#22c55e",
+                  background: "#22c55e", // VERT
                   color: "white",
                   padding: "14px",
                   borderRadius: 14,

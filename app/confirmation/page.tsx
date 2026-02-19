@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Confirmation() {
   const [order, setOrder] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const storedOrder = localStorage.getItem("streamy_order");
@@ -16,6 +18,10 @@ export default function Confirmation() {
   if (!order) {
     return <div style={{ padding: 40 }}>Aucune commande trouvée.</div>;
   }
+
+  // ✅ NOUVELLE LOGIQUE : récupérer tous les noms des services
+  const serviceNames =
+    order.items?.map((item: any) => item.name).join(", ") || "Non défini";
 
   return (
     <main style={{ padding: 40, fontFamily: "system-ui" }}>
@@ -36,10 +42,17 @@ export default function Confirmation() {
         <p>
           <strong>Total :</strong> {order.total} FCFA
         </p>
+
         <hr style={{ margin: "20px 0" }} />
 
         <h3>Détails de la commande :</h3>
 
+        {/* ✅ SERVICE GLOBAL */}
+        <p>
+          <strong>Service :</strong> {serviceNames}
+        </p>
+
+        {/* On garde le détail individuel en dessous */}
         {order.items &&
           order.items.map((item: any, index: number) => (
             <div
@@ -53,7 +66,7 @@ export default function Confirmation() {
               }}
             >
               <p>
-                <strong>Service :</strong> {item.name}
+                <strong>Service :</strong> {item.productName}
               </p>
               <p>
                 <strong>Type :</strong> {item.type}
@@ -66,6 +79,7 @@ export default function Confirmation() {
               </p>
             </div>
           ))}
+
         <p>
           <strong>Date :</strong> {order.date}
         </p>
@@ -79,10 +93,16 @@ export default function Confirmation() {
           <strong>Statut :</strong> En attente de paiement
         </p>
 
+        {/* ✅ BOUTON WHATSAPP */}
         <button
           onClick={() => {
             const message = encodeURIComponent(
-              `Bonjour Streamy, voici la preuve de paiement pour la commande ${order.orderNumber}`
+              `Bonjour Streamy 👋
+Voici la preuve de paiement pour la commande ${order.orderNumber}.
+
+Service(s) : ${serviceNames}
+
+Merci.`
             );
 
             window.open(`https://wa.me/221781242647?text=${message}`, "_blank");
@@ -90,15 +110,36 @@ export default function Confirmation() {
           style={{
             marginTop: 20,
             padding: "14px 20px",
-            background: "#22c55e",
+            background: "#25D366",
             color: "white",
             border: "none",
             borderRadius: 14,
             fontWeight: 700,
             cursor: "pointer",
+            width: "100%",
           }}
         >
           📲 Envoyer la preuve
+        </button>
+
+        {/* ✅ BOUTON RETOUR */}
+        <button
+          onClick={() => {
+            router.push("/abonnements");
+          }}
+          style={{
+            marginTop: 12,
+            padding: "14px 20px",
+            background: "#f59e0b",
+            color: "white",
+            border: "none",
+            borderRadius: 14,
+            fontWeight: 700,
+            cursor: "pointer",
+            width: "100%",
+          }}
+        >
+          🔙 Retour aux abonnements
         </button>
       </div>
     </main>
