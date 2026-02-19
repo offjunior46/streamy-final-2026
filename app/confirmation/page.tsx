@@ -36,6 +36,36 @@ export default function Confirmation() {
         <p>
           <strong>Total :</strong> {order.total} FCFA
         </p>
+        <hr style={{ margin: "20px 0" }} />
+
+        <h3>Détails de la commande :</h3>
+
+        {order.items &&
+          order.items.map((item: any, index: number) => (
+            <div
+              key={index}
+              style={{
+                padding: 10,
+                marginBottom: 10,
+                background: "#ffffff",
+                borderRadius: 10,
+                boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+              }}
+            >
+              <p>
+                <strong>Service :</strong> {item.name}
+              </p>
+              <p>
+                <strong>Type :</strong> {item.type}
+              </p>
+              <p>
+                <strong>Durée :</strong> {item.duration}
+              </p>
+              <p>
+                <strong>Prix :</strong> {item.price} FCFA
+              </p>
+            </div>
+          ))}
         <p>
           <strong>Date :</strong> {order.date}
         </p>
