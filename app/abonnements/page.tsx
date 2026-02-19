@@ -539,10 +539,7 @@ export default function Page() {
       price: number;
     }[]
   >([]);
-  // Méthode de réception
-  const [deliveryMethod, setDeliveryMethod] = useState<
-    "email" | "whatsapp" | null
-  >(null);
+
   // Renouvellement
   const [isRenewOpen, setIsRenewOpen] = useState(false);
   const [renewEmail, setRenewEmail] = useState("");
@@ -551,6 +548,7 @@ export default function Page() {
   const [paymentMethod, setPaymentMethod] = useState<"wave" | "orange" | null>(
     null
   );
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   function toggleOffer(key: string) {
@@ -903,17 +901,9 @@ export default function Page() {
             <div style={{ marginTop: 20 }}>
               <h4>Comment souhaitez-vous recevoir votre commande ?</h4>
               <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                <button
-                  style={{
-                    ...styles.cartBtn,
-                    background:
-                      deliveryMethod === "email" ? "#0ea5e9" : "#e5e7eb",
-                    color: deliveryMethod === "email" ? "white" : "black",
-                  }}
-                  onClick={() => setDeliveryMethod("email")}
-                >
-                  📧 Par email
-                </button>
+                <p>
+                  <strong>Numéro WhatsApp :</strong> {order.whatsappNumber}
+                </p>
                 <button
                   style={{
                     ...styles.cartBtn,
@@ -941,6 +931,27 @@ export default function Page() {
               >
                 🔁 Compte à conserver
               </button>
+            </div>
+            <div style={{ marginTop: 20 }}>
+              <h4>Numéro WhatsApp *</h4>
+
+              <input
+                type="tel"
+                placeholder="Ex: 781242647"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: 12,
+                  marginTop: 10,
+                  borderRadius: 10,
+                  border: "1px solid #ddd",
+                }}
+              />
+
+              <p style={{ fontSize: 12, color: "#666", marginTop: 6 }}>
+                Indiquez un numéro WhatsApp fonctionnel.
+              </p>
             </div>
             {/* =========================
     PARTIE 4 — MÉTHODE DE PAIEMENT
@@ -977,12 +988,16 @@ export default function Page() {
               <button
                 style={styles.validateBtn}
                 onClick={async () => {
-                  try {
-                    if (!deliveryMethod || !paymentMethod) {
-                      alert("Veuillez choisir la réception et le paiement");
-                      return;
-                    }
+                  if (!whatsappNumber) {
+                    alert("Veuillez entrer un numéro WhatsApp valide.");
+                    return;
+                  }
 
+                  if (!paymentMethod) {
+                    alert("Veuillez choisir un mode de paiement.");
+                    return;
+                  }
+                  try {
                     const user = auth.currentUser;
 
                     if (!user) {
@@ -999,7 +1014,7 @@ export default function Page() {
                       items: cart,
                       total: total,
                       date: new Date().toLocaleString(),
-                      deliveryMethod: deliveryMethod,
+                      whatsappNumber: whatsappNumber,
                       paymentMethod: paymentMethod,
                     };
 
