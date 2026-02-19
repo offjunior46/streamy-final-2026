@@ -2,6 +2,7 @@
 import { createOrder } from "@/app/services/order";
 import { auth } from "@/app/firebase";
 import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 type PlanType = "solo" | "co";
 type Duration = "1 mois" | "3 mois";
@@ -31,6 +32,7 @@ function formatFCFA(amount: number) {
   return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} FCFA`;
 }
 export default function Page() {
+  const router = useRouter();
   const products: Product[] = [
     // =========================
     // STREAMING VIDÉO
@@ -988,20 +990,29 @@ export default function Page() {
                       return;
                     }
 
-                    // 🔥 Générer bon de commande
-                    const message = encodeURIComponent(generateOrderMessage());
+                    // 🔥 Sauvegarder commande dans localStorage
+                    const orderData = {
+                      orderNumber: Math.random()
+                        .toString(36)
+                        .substring(2, 8)
+                        .toUpperCase(),
+                      items: cart,
+                      total: total,
+                      date: new Date().toLocaleString(),
+                      deliveryMethod: deliveryMethod,
+                      paymentMethod: paymentMethod,
+                    };
 
-                    if (deliveryMethod === "whatsapp") {
-                      window.open(
-                        `https://wa.me/221781242647?text=${message}`,
-                        "_blank"
-                      );
-                    } else {
-                      window.location.href =
-                        `mailto:${user.email}` +
-                        `?subject=Bon de commande Streamy` +
-                        `&body=${message}`;
-                    }
+                    localStorage.setItem(
+                      "streamy_order",
+                      JSON.stringify(orderData)
+                    );
+
+                    // 🔥 Fermer panier
+                    setIsCartOpen(false);
+
+                    // 🔥 Redirection vers page confirmation
+                    router.push("/confirmation");
 
                     // 🔓 Ensuite ouvrir QR
                     setIsCartOpen(false);
