@@ -988,25 +988,27 @@ export default function Page() {
                       return;
                     }
 
-                    // 🔥 ENREGISTRE CHAQUE ARTICLE DU PANIER
-                    for (const item of cart) {
-                      await createOrder(
-                        user.uid,
-                        user.email,
-                        item.productName,
-                        item.price,
-                        "Non renseigné"
+                    // 🔥 Générer bon de commande
+                    const message = encodeURIComponent(generateOrderMessage());
+
+                    if (deliveryMethod === "whatsapp") {
+                      window.open(
+                        `https://wa.me/221781242647?text=${message}`,
+                        "_blank"
                       );
+                    } else {
+                      window.location.href =
+                        `mailto:${user.email}` +
+                        `?subject=Bon de commande Streamy` +
+                        `&body=${message}`;
                     }
 
-                    console.log("✅ Commande enregistrée");
-
-                    // 🔓 OUVERTURE DU POPUP PAIEMENT
+                    // 🔓 Ensuite ouvrir QR
                     setIsCartOpen(false);
                     setIsPaymentOpen(true);
                   } catch (error) {
-                    console.error("❌ Erreur commande :", error);
-                    alert("Erreur lors de l'enregistrement de la commande");
+                    console.error("Erreur :", error);
+                    alert("Erreur lors de la génération du bon");
                   }
                 }}
               >
@@ -1109,18 +1111,14 @@ export default function Page() {
             <div style={{ marginTop: 16 }}>
               <button
                 onClick={() => {
-                  const message = encodeURIComponent(generateOrderMessage());
-                  if (deliveryMethod === "whatsapp") {
-                    window.open(
-                      `https://wa.me/221781242647?text=${message}`,
-                      "_blank"
-                    );
-                  } else {
-                    window.location.href =
-                      `mailto:contactstreamy.sn@gmail.com` +
-                      `?subject=Bon de commande Streamy` +
-                      `&body=${message}`;
-                  }
+                  const message = encodeURIComponent(
+                    "Bonjour Streamy, voici la preuve de paiement de ma commande. Je joins également mon bon de commande."
+                  );
+
+                  window.open(
+                    `https://wa.me/221781242647?text=${message}`,
+                    "_blank"
+                  );
                 }}
                 style={{
                   display: "block",
@@ -1136,7 +1134,7 @@ export default function Page() {
                   boxShadow: "0 12px 25px rgba(0,0,0,0.15)",
                 }}
               >
-                📩 Recevoir mon bon de commande
+                📤 Envoyer la preuve
               </button>
             </div>
             <div style={{ marginTop: 16 }}>
