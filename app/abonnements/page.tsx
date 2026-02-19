@@ -550,7 +550,7 @@ export default function Page() {
   );
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+
   function toggleOffer(key: string) {
     setOpenOffer((prev) => (prev === key ? null : key));
   }
@@ -895,28 +895,7 @@ export default function Page() {
             <div style={{ marginTop: 12, fontWeight: 900, textAlign: "right" }}>
               Total : {formatFCFA(total)}
             </div>
-            {/* =========================
-    PARTIE 2 — MÉTHODE DE RÉCEPTION
-========================= */}
-            <div style={{ marginTop: 20 }}>
-              <h4>Comment souhaitez-vous recevoir votre commande ?</h4>
-              <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                <p>
-                  <strong>Numéro WhatsApp :</strong> {order.whatsappNumber}
-                </p>
-                <button
-                  style={{
-                    ...styles.cartBtn,
-                    background:
-                      deliveryMethod === "whatsapp" ? "#0ea5e9" : "#e5e7eb",
-                    color: deliveryMethod === "whatsapp" ? "white" : "black",
-                  }}
-                  onClick={() => setDeliveryMethod("whatsapp")}
-                >
-                  💬 WhatsApp
-                </button>
-              </div>
-            </div>
+
             {/* =========================
     PARTIE 3 — RENOUVELLEMENT
 ========================= */}
@@ -988,11 +967,14 @@ export default function Page() {
               <button
                 style={styles.validateBtn}
                 onClick={async () => {
-                  if (!whatsappNumber) {
-                    alert("Veuillez entrer un numéro WhatsApp valide.");
+                  if (cart.length === 0) {
+                    alert("Votre panier est vide.");
                     return;
                   }
-
+                  if (!/^[0-9]{8,}$/.test(whatsappNumber)) {
+                    alert("Numéro WhatsApp invalide.");
+                    return;
+                  }
                   if (!paymentMethod) {
                     alert("Veuillez choisir un mode de paiement.");
                     return;
@@ -1026,11 +1008,7 @@ export default function Page() {
                     // 🔥 Fermer panier
                     setIsCartOpen(false);
 
-                    // 🔥 Redirection vers page confirmation
-                    router.push("/confirmation");
-
                     // 🔓 Ensuite ouvrir QR
-                    setIsCartOpen(false);
                     setIsPaymentOpen(true);
                   } catch (error) {
                     console.error("Erreur :", error);
@@ -1085,8 +1063,8 @@ export default function Page() {
               <button
                 style={styles.validateBtn}
                 onClick={() => {
-                  if (!deliveryMethod || !paymentMethod) {
-                    alert("Veuillez choisir la réception et le paiement");
+                  if (!paymentMethod) {
+                    alert("Veuillez choisir un mode de paiement");
                     return;
                   }
                   setIsPaymentOpen(true);
@@ -1131,8 +1109,9 @@ export default function Page() {
               <b> 78 124 26 47</b>.
               <br />
               <br />
-              Votre bon de commande vous sera envoyé par{" "}
-              <b>{deliveryMethod === "email" ? "email" : "WhatsApp"}</b>.
+              Après le paiement, cliquez sur “Envoyer la preuve” pour nous
+              transmettre votre bon de commande et votre preuve de paiement sur
+              WhatsApp.
             </div>
             <div style={{ marginTop: 16 }}>
               <button
@@ -1168,47 +1147,14 @@ export default function Page() {
                 style={styles.validateBtn}
                 onClick={() => {
                   setIsPaymentOpen(false);
-                  setIsConfirmationOpen(true);
+                  setIsCartOpen(false);
+                  setCart([]); // 🔥 vider panier
+                  router.push("/confirmation");
                 }}
               >
                 Fermer
               </button>
             </div>
-          </div>
-        </div>
-      )}
-      {isConfirmationOpen && (
-        <div style={styles.cartOverlay}>
-          <div style={styles.cartPopup}>
-            <h3 style={{ textAlign: "center" }}>
-              ✅ Paiement en cours de traitement
-            </h3>
-            <div
-              style={{
-                background: "#ecfeff",
-                padding: 14,
-                borderRadius: 12,
-                marginTop: 14,
-                fontSize: 14,
-                lineHeight: 1.5,
-                textAlign: "center",
-              }}
-            >
-              Merci 🙏
-              <br />
-              Nous avons bien reçu votre preuve de paiement.
-              <br />
-              <br />
-              Notre équipe va vérifier votre paiement et vous envoyer
-              <b> votre bon de commande</b> par{" "}
-              <b>{deliveryMethod === "email" ? "email" : "WhatsApp"}</b>.
-            </div>
-            <button
-              style={{ ...styles.validateBtn, marginTop: 18 }}
-              onClick={() => setIsConfirmationOpen(false)}
-            >
-              Fermer
-            </button>
           </div>
         </div>
       )}
