@@ -3,6 +3,8 @@ import { createOrder } from "@/app/services/order";
 import { auth } from "@/app/firebase";
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "@/app/firebase";
 import Link from "next/link";
 type PlanType = "solo" | "co";
 type Duration = "1 mois" | "3 mois";
@@ -970,7 +972,6 @@ export default function Page() {
                       return;
                     }
 
-                    // 🔥 Sauvegarder commande dans localStorage
                     const orderData = {
                       orderNumber: Math.random()
                         .toString(36)
@@ -983,6 +984,20 @@ export default function Page() {
                       paymentMethod: paymentMethod,
                     };
 
+                    // 🔥 1️⃣ Sauvegarde dans Firestore
+                    await addDoc(collection(db, "orders"), {
+                      orderNumber: orderData.orderNumber,
+                      userId: user.uid,
+                      userEmail: user.email ?? "",
+                      items: cart,
+                      total: total,
+                      whatsappNumber: whatsappNumber,
+                      paymentMethod: paymentMethod,
+                      status: "pending",
+                      createdAt: serverTimestamp(),
+                    });
+
+                    // 🔥 2️⃣ Sauvegarde localStorage (pour page confirmation)
                     localStorage.setItem(
                       "streamy_order",
                       JSON.stringify(orderData)
