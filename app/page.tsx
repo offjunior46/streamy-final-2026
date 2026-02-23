@@ -274,6 +274,11 @@ export default function Page() {
             </p>
           </div>
         </div>
+        <p style={styles.importantNote}>
+          <strong>Important :</strong> Après paiement via Wave ou Orange Money,
+          envoyez sur WhatsApp la facture de paiement ainsi que le bon de
+          commande afin d’obtenir vos identifiants.
+        </p>
       </section>
       {/* ================= RENOUVELER ================= */}
       <section style={styles.howSection}>
@@ -316,6 +321,11 @@ export default function Page() {
             </p>
           </div>
         </div>
+        <p style={styles.importantNote}>
+          <strong>Important :</strong> Après paiement via Wave ou Orange Money,
+          envoyez sur WhatsApp la facture de paiement ainsi que le bon de
+          commande afin d’obtenir vos identifiants.
+        </p>
       </section>
 
       {/* =========================
@@ -903,5 +913,19 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 800,
     cursor: "pointer",
     boxShadow: "0 12px 25px rgba(0,0,0,0.10)",
+  },
+  importantNote: {
+    marginTop: 30,
+    maxWidth: 750,
+    marginLeft: "auto",
+    marginRight: "auto",
+    background: "#f3f4f6", // gris très clair
+    padding: 18,
+    borderRadius: 12,
+    fontWeight: 500,
+    color: "#374151", // gris foncé élégant
+    border: "1px solid #e5e7eb",
+    fontSize: 15,
+    lineHeight: 1.6,
   },
 };
