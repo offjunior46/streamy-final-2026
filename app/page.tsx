@@ -158,11 +158,16 @@ export default function Page() {
          ========================= */}
       <header style={styles.header}>
         {/* Logo cliquable -> Accueil */}
+<<<<<<< HEAD
         <Link href="/" style={styles.brandLink}>
+=======
+        <a href="/" style={styles.brandLink}>
+>>>>>>> ff9966f5647cf1fd0920e038d4a033ed462acd14
           <div style={styles.brand}>
             <img src="/streamy-logo.png" alt="Streamy" style={styles.logo} />
             <span style={styles.brandName}>Streamy</span>
           </div>
+<<<<<<< HEAD
         </Link>
 
         <nav style={styles.nav}>
@@ -173,6 +178,18 @@ export default function Page() {
           <Link href="/abonnements" style={styles.navBtn}>
             Abonnements
           </Link>
+=======
+        </a>
+
+        <nav style={styles.nav}>
+          <a href="/" style={{ ...styles.navBtn, ...styles.navBtnActive }}>
+            Accueil
+          </a>
+
+          <a href="/abonnements" style={styles.navBtn}>
+            Abonnements
+          </a>
+>>>>>>> ff9966f5647cf1fd0920e038d4a033ed462acd14
         </nav>
 
         <div style={styles.actions}>
@@ -335,7 +352,11 @@ export default function Page() {
       </section>
 
       {/* =========================
+<<<<<<< HEAD
           SECTION 3 — STREAMY c&apos;est QUOI ?
+=======
+          SECTION 3 — STREAMY C’EST QUOI ?
+>>>>>>> ff9966f5647cf1fd0920e038d4a033ed462acd14
          ========================= */}
       <section style={styles.aboutSection}>
         <div style={styles.aboutInner}>
@@ -432,7 +453,11 @@ export default function Page() {
 
             <Link href="/conditions-utilisation">
               <button style={styles.footerBtnOrange}>
+<<<<<<< HEAD
                 Conditions d&apos;utilisation
+=======
+                Conditions d'utilisation
+>>>>>>> ff9966f5647cf1fd0920e038d4a033ed462acd14
               </button>
             </Link>
           </div>
