@@ -4,17 +4,16 @@ import React, { useMemo, useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { db } from "./firebase";
-import { auth } from "./firebase";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { db, auth } from "./firebase";
 import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
   deleteUser,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
 } from "firebase/auth";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 export default function Page() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -54,7 +53,7 @@ export default function Page() {
         lastName,
         whatsapp,
         email: registerEmail,
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
       });
 
       setIsRegisterOpen(false);
@@ -375,7 +374,11 @@ export default function Page() {
         <div style={styles.contactCard}>
           <h2 style={styles.contactTitle}>Où nous contacter ?</h2>
           <div style={styles.socialRow}>
-            <a href="https://www.instagram.com/streamy.sn/" target="_blank">
+            <a
+              href="https://www.instagram.com/streamy.sn/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 src="/social/instagram.png"
                 alt="Instagram"
@@ -383,7 +386,11 @@ export default function Page() {
               />
             </a>
 
-            <a href="https://www.tiktok.com/@streamy.sn" target="_blank">
+            <a
+              href="https://www.tiktok.com/@streamy.sn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 src="/social/tiktok.png"
                 alt="TikTok"
@@ -394,6 +401,7 @@ export default function Page() {
             <a
               href="https://web.facebook.com/people/Streamy-Sn/pfbid0kUpkSsRcURJWZTouimfxBEHfGDCwQSrq5ywF2vVMitqHRGrCCHzrnZCDYr3RWQStl/"
               target="_blank"
+              rel="noopener noreferrer"
             >
               <img
                 src="/social/facebook.png"
@@ -402,15 +410,22 @@ export default function Page() {
               />
             </a>
 
-            <a href="https://wa.me/221781242647" target="_blank">
+            <a
+              href="https://wa.me/221781242647"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 src="/social/whatsapp.png"
                 alt="WhatsApp"
                 style={styles.socialIcon}
               />
             </a>
-
-            <a href="mailto:contactstreamy.sn@gmail.com">
+            <a
+              href="mailto:contactstreamy.sn@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 src="/social/gmail.png"
                 alt="Email"

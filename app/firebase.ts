@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
@@ -12,7 +12,8 @@ const firebaseConfig = {
   measurementId: "G-DMRZYF4FKG",
 };
 
-const app = initializeApp(firebaseConfig); // ✅ D'abord on crée app
+// 🔥 Empêche la double initialisation en production
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-export const auth = getAuth(app);          // ✅ Ensuite auth
-export const db = getFirestore(app);       // ✅ Ensuite Firestore
+export const auth = getAuth(app);
+export const db = getFirestore(app);

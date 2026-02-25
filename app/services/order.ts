@@ -1,20 +1,37 @@
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
+export type OrderItem = {
+  productId: string;
+  productName: string;
+  type: "solo" | "co";
+  duration: string;
+  price: number;
+};
+
 export const createOrder = async (
   userId: string,
-  email: string | null,
-  serviceName: string,
-  price: number,
-  customerWhatsapp: string
+  items: OrderItem[],
+  total: number,
+  whatsappNumber: string,
+  paymentMethod: "wave" | "orange",
+  orderNumber: string
 ) => {
-  return await addDoc(collection(db, "orders"), {
-    userId,
-    email,
-    serviceName,
-    price,
-    status: "pending",
-    customerWhatsapp,
-    createdAt: serverTimestamp(),
-  });
+  try {
+    const docRef = await addDoc(collection(db, "orders"), {
+      orderNumber,
+      userId,
+      items,
+      total,
+      whatsappNumber,
+      paymentMethod,
+      status: "pending",
+      createdAt: serverTimestamp(),
+    });
+
+    return docRef;
+  } catch (error) {
+    console.error("Erreur création commande :", error);
+    throw error;
+  }
 };

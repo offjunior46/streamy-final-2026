@@ -6,10 +6,18 @@ import { onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
+type OrderItem = {
+  productName: string;
+  price: number;
+  type: string;
+  duration: string;
+};
+
 type Order = {
   id: string;
-  serviceName: string;
-  price: number;
+  orderNumber: string;
+  items: OrderItem[];
+  total: number;
   status: string;
   createdAt?: any;
   activationDate?: any;
@@ -28,22 +36,28 @@ export default function MesCommandesPage() {
         return;
       }
 
-      const q = query(
-        collection(db, "orders"),
-        where("userId", "==", user.uid)
-      );
+      try {
+        const q = query(
+          collection(db, "orders"),
+          where("userId", "==", user.uid)
+        );
 
-      const snap = await getDocs(q);
-      const list: Order[] = [];
+        const snap = await getDocs(q);
 
-      snap.forEach((doc) => {
-        list.push({
-          id: doc.id,
-          ...(doc.data() as any),
+        const list: Order[] = [];
+
+        snap.forEach((doc) => {
+          list.push({
+            id: doc.id,
+            ...(doc.data() as any),
+          });
         });
-      });
 
-      setOrders(list);
+        setOrders(list);
+      } catch (error) {
+        console.error("Erreur récupération commandes :", error);
+      }
+
       setLoading(false);
     });
 
@@ -73,14 +87,41 @@ export default function MesCommandesPage() {
             marginBottom: 20,
           }}
         >
-          <div style={{ fontWeight: 700, fontSize: 18 }}>
-            {order.serviceName}
+          <div style={{ fontWeight: 900, fontSize: 18 }}>
+            Commande #{order.orderNumber}
           </div>
 
           <div style={{ color: "#666", marginTop: 6 }}>
             Date d'achat : <strong>{formatDate(order.createdAt)}</strong>
           </div>
 
+          {/* SERVICES */}
+          <div style={{ marginTop: 12 }}>
+            {order.items?.map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  marginBottom: 10,
+                  padding: 10,
+                  background: "#f8fafc",
+                  borderRadius: 8,
+                }}
+              >
+                <strong>{item.productName}</strong>
+                <div style={{ fontSize: 14, color: "#475569" }}>
+                  {item.type} — {item.duration}
+                </div>
+                <div style={{ fontSize: 14 }}>{item.price} FCFA</div>
+              </div>
+            ))}
+          </div>
+
+          {/* TOTAL */}
+          <div style={{ marginTop: 10, fontWeight: 700 }}>
+            Total : <strong>{order.total} FCFA</strong>
+          </div>
+
+          {/* ACTIVATION */}
           {order.activationDate && (
             <div style={{ color: "#666", marginTop: 4 }}>
               Date d'activation :{" "}
@@ -88,6 +129,7 @@ export default function MesCommandesPage() {
             </div>
           )}
 
+          {/* EXPIRATION */}
           {order.expirationDate && (
             <div style={{ color: "#666", marginTop: 4 }}>
               Date d'expiration :{" "}
@@ -95,11 +137,8 @@ export default function MesCommandesPage() {
             </div>
           )}
 
-          <div style={{ marginTop: 6 }}>
-            Prix : <strong>{order.price} FCFA</strong>
-          </div>
-
-          <div style={{ marginTop: 4 }}>
+          {/* STATUS */}
+          <div style={{ marginTop: 8 }}>
             Statut :{" "}
             <strong
               style={{

@@ -766,12 +766,6 @@ export default function Page() {
                             >
                               Ajouter au panier
                             </button>
-                            <button
-                              style={styles.validateBtn}
-                              onClick={() => addToCart(p, o)}
-                            >
-                              Ajouter au panier
-                            </button>
                           </div>
                         );
                       })()}

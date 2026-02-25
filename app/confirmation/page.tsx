@@ -21,7 +21,8 @@ export default function Confirmation() {
 
   // ✅ NOUVELLE LOGIQUE : récupérer tous les noms des services
   const serviceNames =
-    order.items?.map((item: any) => item.name).join(", ") || "Non défini";
+    order.items?.map((item: any) => item.productName).join(", ") ||
+    "Non défini";
 
   return (
     <main style={{ padding: 40, fontFamily: "system-ui" }}>
