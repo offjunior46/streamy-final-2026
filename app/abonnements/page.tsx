@@ -982,7 +982,6 @@ export default function Page() {
                     await addDoc(collection(db, "orders"), {
                       orderNumber: orderData.orderNumber,
                       userId: user.uid,
-                      userEmail: user.email ?? "",
                       items: cart,
                       total: total,
                       whatsappNumber: whatsappNumber,
