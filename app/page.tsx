@@ -373,11 +373,11 @@ export default function Page() {
         <div style={styles.contactCard}>
           <h2 style={styles.contactTitle}>Où nous contacter ?</h2>
           <div style={styles.socialRow}>
-            <a
-              href="https://www.instagram.com/streamy.sn/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+           <a
+  href="https://www.instagram.com/streamy_sn/"
+  target="_blank"
+  rel="noopener noreferrer"
+>
               <img
                 src="/social/instagram.png"
                 alt="Instagram"
@@ -385,11 +385,11 @@ export default function Page() {
               />
             </a>
 
-            <a
-              href="https://www.tiktok.com/@streamy.sn"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+           <a
+  href="https://tiktok.com/@streamy_sn"
+  target="_blank"
+  rel="noopener noreferrer"
+>
               <img
                 src="/social/tiktok.png"
                 alt="TikTok"
