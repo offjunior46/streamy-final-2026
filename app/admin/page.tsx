@@ -35,16 +35,28 @@ import {
 
 type OrderStatus = "pending" | "paid" | string;
 
+type OrderItem = {
+  productId?: string;
+  productName?: string;
+  type?: string;
+  duration?: string;
+  price?: number;
+};
+
 type OrderDoc = {
   id: string;
   userId: string;
-  serviceName: string;
-  price: number;
+  orderNumber?: string;
+  items?: OrderItem[];
+  total?: number;
   status: OrderStatus;
   email?: string;
+  whatsappNumber?: string;
+  paymentMethod?: string;
   createdAt?: any;
+  activationDate?: Timestamp;
+  expirationDate?: Timestamp;
 };
-
 type UserDoc = {
   id: string;
   email?: string;
@@ -91,7 +103,21 @@ function addMonths(date: Date, months: number) {
   if (d.getDate() < day) d.setDate(0);
   return d;
 }
+function getOrderMainService(order: OrderDoc) {
+  if (!order.items || order.items.length === 0) return "Commande sans article";
+  return order.items.map((item) => item.productName || "Article").join(", ");
+}
 
+function parseCreatedAt(order: OrderDoc) {
+  if (!order.createdAt) return null;
+
+  if (typeof order.createdAt?.toDate === "function") {
+    return order.createdAt.toDate();
+  }
+
+  const d = new Date(order.createdAt);
+  return isNaN(d.getTime()) ? null : d;
+}
 function durationMonthsForService(serviceName: string) {
   // Snapchat+ = 3 mois, sinon 1 mois (comme ton ancienne logique)
   if ((serviceName || "").toLowerCase().includes("snapchat")) return 3;
@@ -118,7 +144,8 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string>("");
-
+const [dateFrom, setDateFrom] = useState("");
+const [dateTo, setDateTo] = useState("");
   // --------- AUTH + ADMIN CHECK ---------
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -192,26 +219,48 @@ export default function AdminPage() {
   }, [adminUid]);
 
   // --------- DERIVED ---------
-  const filteredOrders = useMemo(() => {
-    const s = search.trim().toLowerCase();
+const filteredOrders = useMemo(() => {
+  const s = search.trim().toLowerCase();
 
-    return orders
-      .filter((o) => {
-        if (orderFilter === "pending") return o.status === "pending";
-        if (orderFilter === "paid") return o.status === "paid";
-        return true;
-      })
-      .filter((o) => {
-        if (!s) return true;
-        const blob = `${o.serviceName ?? ""} ${o.email ?? ""} ${
-          o.userId ?? ""
-        } ${o.status ?? ""}`.toLowerCase();
-        return blob.includes(s);
-      })
-      .sort((a, b) =>
-        a.status === "pending" && b.status !== "pending" ? -1 : 0
-      );
-  }, [orders, orderFilter, search]);
+  return orders
+    .filter((o) => {
+      if (orderFilter === "pending") return o.status === "pending";
+      if (orderFilter === "paid") return o.status === "paid";
+      return true;
+    })
+    .filter((o) => {
+      const orderDate = parseCreatedAt(o);
+
+      if (dateFrom) {
+        const from = new Date(dateFrom);
+        if (!orderDate || orderDate < from) return false;
+      }
+
+      if (dateTo) {
+        const to = new Date(dateTo);
+        if (!orderDate || orderDate > to) return false;
+      }
+
+      return true;
+    })
+    .filter((o) => {
+      if (!s) return true;
+
+      const itemsText =
+        o.items?.map((item) => item.productName || "").join(" ") || "";
+
+      const blob = `${itemsText} ${o.orderNumber ?? ""} ${o.email ?? ""} ${
+        o.userId ?? ""
+      } ${o.status ?? ""} ${o.whatsappNumber ?? ""}`.toLowerCase();
+
+      return blob.includes(s);
+    })
+    .sort((a, b) => {
+      const da = parseCreatedAt(a)?.getTime() ?? 0;
+      const db = parseCreatedAt(b)?.getTime() ?? 0;
+      return db - da;
+    });
+}, [orders, orderFilter, search, dateFrom, dateTo]);
 
   const stats = useMemo(() => {
     const totalUsers = users.length;
@@ -251,7 +300,7 @@ export default function AdminPage() {
     try {
       // Calcul des dates UNE SEULE FOIS
       const start = new Date();
-      const months = durationMonthsForService(order.serviceName);
+      const months = durationMonthsForService(getOrderMainService(order));
       const end = addMonths(start, months);
 
       // 1) Update order avec activation + expiration
@@ -263,8 +312,8 @@ export default function AdminPage() {
 
       // 2) Create subscription
       const subPayload = {
-        serviceName: order.serviceName,
-        price: Number(order.price ?? 0),
+       serviceName: getOrderMainService(order),
+price: Number(order.total ?? 0),
         startDate: Timestamp.fromDate(start),
         endDate: Timestamp.fromDate(end),
         status: "active" as const,
@@ -614,7 +663,7 @@ export default function AdminPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher (service, email, userId, status)..."
+           placeholder="Rechercher (article, numéro commande, email, WhatsApp, statut)..."
               style={{
                 flex: "1 1 320px",
                 padding: 10,
@@ -623,6 +672,43 @@ export default function AdminPage() {
                 outline: "none",
               }}
             />
+           <input
+  type="datetime-local"
+  value={dateFrom}
+  onChange={(e) => setDateFrom(e.target.value)}
+  style={{
+    padding: 10,
+    borderRadius: 10,
+    border: "1px solid #ccc",
+  }}
+/>
+
+<input
+  type="datetime-local"
+  value={dateTo}
+  onChange={(e) => setDateTo(e.target.value)}
+  style={{
+    padding: 10,
+    borderRadius: 10,
+    border: "1px solid #ccc",
+  }}
+/>
+
+<button
+  onClick={() => {
+    setDateFrom("");
+    setDateTo("");
+  }}
+  style={{
+    padding: "8px 12px",
+    borderRadius: 10,
+    border: "1px solid #ccc",
+    background: "white",
+    cursor: "pointer",
+  }}
+>
+  Réinitialiser date
+</button> 
           </div>
 
           <h2 style={{ marginTop: 8 }}>Commandes</h2>
@@ -648,10 +734,43 @@ export default function AdminPage() {
                   flexWrap: "wrap",
                 }}
               >
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 16 }}>
-                    {order.serviceName}
-                  </div>
+              <div>
+  <div style={{ fontWeight: 700, fontSize: 16 }}>
+    {getOrderMainService(order)}
+  </div>
+
+  <div style={{ color: "#666", marginTop: 4 }}>
+    Numéro de commande : <strong>{order.orderNumber ?? "—"}</strong>
+  </div>
+
+  <div style={{ color: "#666", marginTop: 4 }}>
+    Date d'achat : <strong>{formatDate(order.createdAt)}</strong>
+  </div>
+
+  {order.activationDate && (
+    <div style={{ color: "#666", marginTop: 4 }}>
+      Date d'activation : <strong>{formatDate(order.activationDate)}</strong>
+    </div>
+  )}
+
+  {order.expirationDate && (
+    <div style={{ color: "#666", marginTop: 2 }}>
+      Date d'expiration : <strong>{formatDate(order.expirationDate)}</strong>
+    </div>
+  )}
+
+  <div style={{ color: "#666", marginTop: 4 }}>
+    Client : <strong>{getUserLabel(order.userId)}</strong>
+  </div>
+
+  <div style={{ color: "#666", marginTop: 2 }}>
+    Email : {order.email ?? "—"}
+  </div>
+
+  <div style={{ color: "#666", marginTop: 2 }}>
+    WhatsApp : {order.whatsappNumber ?? "—"}
+  </div>
+</div>
                   <div style={{ color: "#666", marginTop: 4 }}>
                     Date d'achat :{" "}
                     <strong>{formatDate(order.createdAt)}</strong>
@@ -677,7 +796,7 @@ export default function AdminPage() {
                 </div>
 
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontWeight: 700 }}>{order.price} FCFA</div>
+                 <div style={{ fontWeight: 700 }}>{order.total ?? 0} FCFA</div>
                   <div style={{ marginTop: 4 }}>
                     Statut :{" "}
                     <span
