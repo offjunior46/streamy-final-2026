@@ -283,13 +283,9 @@ export default function Page() {
           </div>
         </div>
 
-        <p style={styles.importantNote}>
-          <strong>Important :</strong> Veuillez renseigner un numéro WhatsApp
-          valide dans votre panier afin de recevoir votre bon de commande ainsi
-          que vos accès.
-        </p>
+      
       </section>
-      {/* ================= RENOUVELER ================= */}
+     {/* ================= RENOUVELER ================= */}
       <section style={styles.howSection}>
         <h2 style={styles.howTitle}>Renouveler votre abonnement</h2>
         <p style={styles.howSubtitle}>
@@ -299,26 +295,28 @@ export default function Page() {
         <div style={styles.stepsGrid}>
           <div style={{ ...styles.stepCard, background: "#EEF2FF" }}>
             <span style={{ ...styles.stepNumber, color: "#6366F1" }}>01</span>
-            <h3 style={styles.stepTitle}>Service</h3>
+            <h3 style={styles.stepTitle}>Choix du service</h3>
             <p style={styles.stepText}>
-              Choisissez le service à renouveler (Netflix, Spotify, Prime
-              Video…).
+              Choisissez le service que vous souhaitez renouveler (Netflix,
+              Spotify, Prime Video…).
             </p>
           </div>
 
           <div style={{ ...styles.stepCard, background: "#FEF3C7" }}>
             <span style={{ ...styles.stepNumber, color: "#F59E0B" }}>02</span>
-            <h3 style={styles.stepTitle}>Compte existant</h3>
+            <h3 style={styles.stepTitle}>Panier</h3>
             <p style={styles.stepText}>
-              Indiquez que vous possédez déjà un compte à conserver.
+              Accédez à votre panier puis cliquez sur « Compte à conserver » si
+              vous souhaitez renouveler vos accès actuels.
             </p>
           </div>
 
           <div style={{ ...styles.stepCard, background: "#FCE7F3" }}>
             <span style={{ ...styles.stepNumber, color: "#EC4899" }}>03</span>
-            <h3 style={styles.stepTitle}>Vérification</h3>
+            <h3 style={styles.stepTitle}>Identifiants</h3>
             <p style={styles.stepText}>
-              Renseignez l’email ou l’identifiant du compte à renouveler.
+              Renseignez les identifiants du compte déjà utilisé puis revenez au
+              panier pour continuer la commande.
             </p>
           </div>
 
@@ -326,17 +324,14 @@ export default function Page() {
             <span style={{ ...styles.stepNumber, color: "#06B6D4" }}>04</span>
             <h3 style={styles.stepTitle}>Paiement</h3>
             <p style={styles.stepText}>
-              Payez en toute sécurité et continuez à profiter immédiatement.
+              Indiquez un numéro WhatsApp valide puis payez en toute sécurité
+              via PayTech pour finaliser le renouvellement.
             </p>
           </div>
         </div>
-        <p style={styles.importantNote}>
-          <strong>Important :</strong> Après paiement via Wave ou Orange Money,
-          envoyez sur WhatsApp la facture de paiement ainsi que le bon de
-          commande afin d’obtenir vos identifiants.
-        </p>
-      </section>
 
+        
+      </section>
       {/* =========================
          SECTION 3 — STREAMY C’EST QUOI ?
          ========================= */}
