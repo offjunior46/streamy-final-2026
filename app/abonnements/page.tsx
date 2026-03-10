@@ -1,8 +1,8 @@
 "use client";
-import { createOrder } from "@/app/services/order";
+
 import { auth } from "@/app/firebase";
 import React, { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/app/firebase";
 import Link from "next/link";
@@ -34,7 +34,6 @@ function formatFCFA(amount: number) {
   return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} FCFA`;
 }
 export default function Page() {
-  const router = useRouter();
   const products: Product[] = [
     // =========================
     // STREAMING VIDÉO
@@ -530,11 +529,8 @@ export default function Page() {
   const [renewEmail, setRenewEmail] = useState("");
   const [renewPassword, setRenewPassword] = useState("");
   // Paiement
-  const [paymentMethod, setPaymentMethod] = useState<"wave" | "orange" | null>(
-    null
-  );
+
   const [whatsappNumber, setWhatsappNumber] = useState("");
-  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
   function toggleOffer(key: string) {
     setOpenOffer((prev) => (prev === key ? null : key));
@@ -586,45 +582,9 @@ export default function Page() {
   function minPrice(p: Product) {
     return Math.min(...p.offers.map((o) => o.price));
   }
-  function handleSubscribe(product: Product, offer: Offer) {
-    // For now: just a simple alert. Later: add to cart, open modal, etc.
-    alert(
-      `✅ ${product.name}\n${offer.type === "solo" ? "Solo" : "Co"} — ${
-        offer.duration
-      }\nPrix: ${formatFCFA(offer.price)}`
-    );
-  }
+
   const total = cart.reduce((sum, item) => sum + item.price, 0);
-  function generateOrderMessage() {
-    const orderId = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const services = cart
-      .map(
-        (item) =>
-          `• ${item.productName}
-  Type : ${item.type === "solo" ? "Solo" : "Co-abonnement"}
-  Durée : ${item.duration}
-  Prix : ${formatFCFA(item.price)}`
-      )
-      .join("\n\n");
-    const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-    return `
-  MERCI DE VOTRE COMMANDE – STREAMY 💙
- 
-  Numéro de commande : ${orderId}
- 
-  ${services}
- 
-  Nombre d’abonnements : ${cart.length}
-  Prix total : ${formatFCFA(totalPrice)}
- 
-  DÉTAILS DE LA COMMANDE :
-  Si votre commande n'apparait pas ici, veuillez contacter notre support client sur WhatsApp en fournissant votre numéro de commande.
- 
-  CONTACT :
-  WhatsApp : 78 124 26 47
-  Email : contactstreamy.sn@gmail.com
-  `;
-  }
+
   return (
     <main style={styles.page}>
       {/* =========================
@@ -915,31 +875,12 @@ export default function Page() {
     PARTIE 4 — MÉTHODE DE PAIEMENT
 ========================= */}
             <div style={{ marginTop: 22 }}>
-              <h4>Choisissez votre méthode de paiement :</h4>
-              <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                <button
-                  style={{
-                    ...styles.cartBtn,
-                    background:
-                      paymentMethod === "wave" ? "#0ea5e9" : "#e5e7eb",
-                    color: paymentMethod === "wave" ? "white" : "black",
-                  }}
-                  onClick={() => setPaymentMethod("wave")}
-                >
-                  🌊 Wave
-                </button>
-                <button
-                  style={{
-                    ...styles.cartBtn,
-                    background:
-                      paymentMethod === "orange" ? "#0ea5e9" : "#e5e7eb",
-                    color: paymentMethod === "orange" ? "white" : "black",
-                  }}
-                  onClick={() => setPaymentMethod("orange")}
-                >
-                  🍊 Orange Money
-                </button>
-              </div>
+              <h4>Paiement sécurisé</h4>
+              <p style={{ fontSize: 14, color: "#475569", marginTop: 8 }}>
+                Après validation, vous serez redirigé vers PayTech pour choisir
+                votre moyen de paiement (Wave, Orange Money, Free Money ou carte
+                bancaire).
+              </p>
             </div>
             <div style={styles.cartActions}>
               <button onClick={() => setIsCartOpen(false)}>Annuler</button>
@@ -950,14 +891,12 @@ export default function Page() {
                     alert("Votre panier est vide.");
                     return;
                   }
+
                   if (!/^[0-9]{8,}$/.test(whatsappNumber)) {
                     alert("Numéro WhatsApp invalide.");
                     return;
                   }
-                  if (!paymentMethod) {
-                    alert("Veuillez choisir un mode de paiement.");
-                    return;
-                  }
+
                   try {
                     const user = auth.currentUser;
 
@@ -975,39 +914,63 @@ export default function Page() {
                       total: total,
                       date: new Date().toLocaleString(),
                       whatsappNumber: whatsappNumber,
-                      paymentMethod: paymentMethod,
+                      paymentMethod: "paytech",
                     };
 
-                    // 🔥 1️⃣ Sauvegarde dans Firestore
                     await addDoc(collection(db, "orders"), {
                       orderNumber: orderData.orderNumber,
                       userId: user.uid,
                       items: cart,
                       total: total,
                       whatsappNumber: whatsappNumber,
-                      paymentMethod: paymentMethod,
-                      status: "pending",
+                      paymentMethod: "paytech",
+                      status: "pending_payment",
                       createdAt: serverTimestamp(),
                     });
 
-                    // 🔥 2️⃣ Sauvegarde localStorage (pour page confirmation)
                     localStorage.setItem(
                       "streamy_order",
                       JSON.stringify(orderData)
                     );
 
-                    // 🔥 Fermer panier
-                    setIsCartOpen(false);
+                    const response = await fetch("/api/paytech/init", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        orderNumber: orderData.orderNumber,
+                        total: orderData.total,
+                        customerPhone: orderData.whatsappNumber,
+                        items: orderData.items,
+                      }),
+                    });
 
-                    // 🔓 Ensuite ouvrir QR
-                    setIsPaymentOpen(true);
+                    const result = await response.json();
+
+                    console.log("Réponse PayTech :", result);
+
+                    const redirectUrl =
+                      result?.redirect_url ||
+                      result?.redirectUrl ||
+                      result?.data?.redirect_url ||
+                      result?.data?.redirectUrl;
+
+                    if (!response.ok || !redirectUrl) {
+                      console.error("Erreur PayTech :", result);
+                      alert("Impossible de lancer le paiement PayTech.");
+                      return;
+                    }
+
+                    setIsCartOpen(false);
+                    window.location.href = redirectUrl;
                   } catch (error) {
                     console.error("Erreur :", error);
-                    alert("Erreur lors de la génération du bon");
+                    alert("Erreur lors du lancement du paiement.");
                   }
                 }}
               >
-                🔵 Payer
+                🔵 Payer avec PayTech
               </button>
             </div>
           </div>
@@ -1052,113 +1015,14 @@ export default function Page() {
             <div style={styles.cartActions}>
               <button onClick={() => setIsRenewOpen(false)}>Annuler</button>
               <button
-                style={styles.validateBtn}
-                onClick={() => {
-                  if (!paymentMethod) {
-                    alert("Veuillez choisir un mode de paiement");
-                    return;
-                  }
-                  setIsPaymentOpen(true);
-                }}
-              >
-                🔵 Payer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {isPaymentOpen && (
-        <div style={styles.cartOverlay}>
-          <div style={styles.cartPopup}>
-            <h3>
-              Paiement par {paymentMethod === "wave" ? "Wave" : "Orange Money"}
-            </h3>
-            <div style={{ textAlign: "center", margin: "20px 0" }}>
-              <img
-                src={
-                  paymentMethod === "wave" ? "/wave-qr.png" : "/orange-qr.png"
-                }
-                alt="QR Code paiement"
-                style={{ width: 220, height: 220 }}
-              />
-            </div>
-            <div
-              style={{
-                background: "#e9f5ff",
-                padding: 14,
-                borderRadius: 12,
-                fontSize: 14,
-                textAlign: "center",
-                lineHeight: 1.5,
-              }}
-            >
-              Veuillez scanner ce QR code et transférer la somme exacte de votre
-              commande au compte <b>78 124 26 47</b>.
-              <br />
-              <br />
-              Après le paiement, envoyez la preuve sur WhatsApp au
-              <b> 78 124 26 47</b>.
-              <br />
-              <br />
-              Après le paiement, cliquez sur “Envoyer la preuve” pour nous
-              transmettre votre bon de commande et votre preuve de paiement sur
-              WhatsApp.
-            </div>
-            <div style={{ marginTop: 16 }}>
-              <button
-                onClick={() => {
-                  const order = JSON.parse(
-                    localStorage.getItem("streamy_order") || "{}"
-                  );
-
-                  const message = encodeURIComponent(
-                    `Bonjour Streamy 👋
-Voici la preuve de paiement de ma commande.
-
-Numéro de commande : ${order.orderNumber || "N/A"}
-
-Merci.`
-                  );
-
-                  window.open(
-                    `https://wa.me/221781242647?text=${message}`,
-                    "_blank"
-                  );
-
-                  setIsPaymentOpen(false);
-                  setIsCartOpen(false);
-                  setCart([]);
-                  router.push("/confirmation");
-                }}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  textAlign: "center",
-                  background: "#22c55e", // VERT
-                  color: "white",
-                  padding: "14px",
-                  borderRadius: 14,
-                  fontWeight: 900,
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: "0 12px 25px rgba(0,0,0,0.15)",
-                }}
-              >
-                📤 Envoyer la preuve
-              </button>
-            </div>
-            <div style={{ marginTop: 16 }}>
-              <button
-                style={styles.validateBtn}
-                onClick={() => {
-                  setIsPaymentOpen(false);
-                  setIsCartOpen(false);
-                  setCart([]); // 🔥 vider panier
-                  router.push("/confirmation");
-                }}
-              >
-                Fermer
-              </button>
+  style={styles.validateBtn}
+  onClick={() => {
+    alert("Revenez au panier pour lancer le paiement PayTech.");
+    setIsRenewOpen(false);
+  }}
+>
+  Revenir au panier
+</button>
             </div>
           </div>
         </div>
