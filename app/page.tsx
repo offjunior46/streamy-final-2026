@@ -238,7 +238,7 @@ export default function Page() {
         </div>
       </section>
 
-      {/* =========================
+     {/* =========================
           SECTION 2 — COMMENT SOUSCRIRE
          ========================= */}
       <section style={styles.howSection}>
@@ -257,17 +257,19 @@ export default function Page() {
 
           <div style={{ ...styles.stepCard, background: "#FEF3C7" }}>
             <span style={{ ...styles.stepNumber, color: "#F59E0B" }}>02</span>
-            <h3 style={styles.stepTitle}>Produit</h3>
+            <h3 style={styles.stepTitle}>Ajouter au panier</h3>
             <p style={styles.stepText}>
-              Sélectionnez la durée, le type d’offre et vérifiez le prix.
+              Sélectionnez l’offre souhaitée puis ajoutez l’abonnement choisi à
+              votre panier.
             </p>
           </div>
 
           <div style={{ ...styles.stepCard, background: "#FCE7F3" }}>
             <span style={{ ...styles.stepNumber, color: "#EC4899" }}>03</span>
-            <h3 style={styles.stepTitle}>Infos</h3>
+            <h3 style={styles.stepTitle}>Panier & WhatsApp</h3>
             <p style={styles.stepText}>
-              Renseignez vos informations et choisissez votre mode de livraison.
+              Accédez à votre panier puis renseignez un numéro WhatsApp valide
+              pour recevoir votre bon de commande et vos accès.
             </p>
           </div>
 
@@ -275,14 +277,16 @@ export default function Page() {
             <span style={{ ...styles.stepNumber, color: "#06B6D4" }}>04</span>
             <h3 style={styles.stepTitle}>Paiement</h3>
             <p style={styles.stepText}>
-              Payez en toute sécurité et recevez vos accès immédiatement.
+              Payez en toute sécurité via PayTech et finalisez votre commande en
+              quelques clics.
             </p>
           </div>
         </div>
+
         <p style={styles.importantNote}>
-          <strong>Important :</strong> Après paiement via Wave ou Orange Money,
-          envoyez sur WhatsApp la facture de paiement ainsi que le bon de
-          commande afin d’obtenir vos identifiants.
+          <strong>Important :</strong> Veuillez renseigner un numéro WhatsApp
+          valide dans votre panier afin de recevoir votre bon de commande ainsi
+          que vos accès.
         </p>
       </section>
       {/* ================= RENOUVELER ================= */}
