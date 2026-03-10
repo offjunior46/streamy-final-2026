@@ -726,90 +726,67 @@ price: Number(order.total ?? 0),
                 background: "white",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 12,
-                  flexWrap: "wrap",
-                }}
-              >
-              <div>
-  <div style={{ fontWeight: 700, fontSize: 16 }}>
-    {getOrderMainService(order)}
-  </div>
+             <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    flexWrap: "wrap",
+  }}
+>
+  <div>
+    <div style={{ fontWeight: 700, fontSize: 16 }}>
+      {getOrderMainService(order)}
+    </div>
 
-  <div style={{ color: "#666", marginTop: 4 }}>
-    Numéro de commande : <strong>{order.orderNumber ?? "—"}</strong>
-  </div>
-
-  <div style={{ color: "#666", marginTop: 4 }}>
-    Date d'achat : <strong>{formatDate(order.createdAt)}</strong>
-  </div>
-
-  {order.activationDate && (
     <div style={{ color: "#666", marginTop: 4 }}>
-      Date d'activation : <strong>{formatDate(order.activationDate)}</strong>
+      Numéro de commande : <strong>{order.orderNumber ?? "—"}</strong>
     </div>
-  )}
 
-  {order.expirationDate && (
+    <div style={{ color: "#666", marginTop: 4 }}>
+      Date d'achat : <strong>{formatDate(order.createdAt)}</strong>
+    </div>
+
+    {order.activationDate && (
+      <div style={{ color: "#666", marginTop: 4 }}>
+        Date d'activation : <strong>{formatDate(order.activationDate)}</strong>
+      </div>
+    )}
+
+    {order.expirationDate && (
+      <div style={{ color: "#666", marginTop: 2 }}>
+        Date d'expiration : <strong>{formatDate(order.expirationDate)}</strong>
+      </div>
+    )}
+
+    <div style={{ color: "#666", marginTop: 4 }}>
+      Client : <strong>{getUserLabel(order.userId)}</strong>
+    </div>
+
     <div style={{ color: "#666", marginTop: 2 }}>
-      Date d'expiration : <strong>{formatDate(order.expirationDate)}</strong>
+      Email : {order.email ?? "—"}
     </div>
-  )}
 
-  <div style={{ color: "#666", marginTop: 4 }}>
-    Client : <strong>{getUserLabel(order.userId)}</strong>
+    <div style={{ color: "#666", marginTop: 2 }}>
+      WhatsApp : {order.whatsappNumber ?? "—"}
+    </div>
   </div>
 
-  <div style={{ color: "#666", marginTop: 2 }}>
-    Email : {order.email ?? "—"}
-  </div>
-
-  <div style={{ color: "#666", marginTop: 2 }}>
-    WhatsApp : {order.whatsappNumber ?? "—"}
+  <div style={{ textAlign: "right" }}>
+    <div style={{ fontWeight: 700 }}>{order.total ?? 0} FCFA</div>
+    <div style={{ marginTop: 4 }}>
+      Statut :{" "}
+      <span
+        style={{
+          color: order.status === "paid" ? "green" : "orange",
+          fontWeight: 700,
+        }}
+      >
+        {order.status}
+      </span>
+    </div>
   </div>
 </div>
-                  <div style={{ color: "#666", marginTop: 4 }}>
-                    Date d'achat :{" "}
-                    <strong>{formatDate(order.createdAt)}</strong>
-                    {order.activationDate && (
-                      <div style={{ color: "#666", marginTop: 4 }}>
-                        Date d'activation :{" "}
-                        <strong>{formatDate(order.activationDate)}</strong>
-                      </div>
-                    )}
-                    {order.expirationDate && (
-                      <div style={{ color: "#666", marginTop: 2 }}>
-                        Date d'expiration :{" "}
-                        <strong>{formatDate(order.expirationDate)}</strong>
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ color: "#666", marginTop: 4 }}>
-                    Client : <strong>{getUserLabel(order.userId)}</strong>
-                  </div>
-                  <div style={{ color: "#666", marginTop: 2 }}>
-                    Email : {order.email ?? "—"}
-                  </div>
-                </div>
-
-                <div style={{ textAlign: "right" }}>
-                 <div style={{ fontWeight: 700 }}>{order.total ?? 0} FCFA</div>
-                  <div style={{ marginTop: 4 }}>
-                    Statut :{" "}
-                    <span
-                      style={{
-                        color: order.status === "paid" ? "green" : "orange",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-                </div>
-              </div>
 
               {order.status === "pending" && (
                 <div
