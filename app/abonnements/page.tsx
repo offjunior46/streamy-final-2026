@@ -531,7 +531,7 @@ export default function Page() {
   // Paiement
 
   const [whatsappNumber, setWhatsappNumber] = useState("");
-
+const [customerEmail, setCustomerEmail] = useState("");
   function toggleOffer(key: string) {
     setOpenOffer((prev) => (prev === key ? null : key));
   }
@@ -879,6 +879,27 @@ export default function Page() {
                 Indiquez un numéro WhatsApp fonctionnel.
               </p>
             </div>
+            <div style={{ marginTop: 16 }}>
+  <h4>Email *</h4>
+
+  <input
+    type="email"
+    placeholder="Ex: contact@gmail.com"
+    value={customerEmail}
+    onChange={(e) => setCustomerEmail(e.target.value)}
+    style={{
+      width: "100%",
+      padding: 12,
+      marginTop: 10,
+      borderRadius: 10,
+      border: "1px solid #ddd",
+    }}
+  />
+
+  <p style={{ fontSize: 12, color: "#666", marginTop: 6 }}>
+    Indiquez un compte email fonctionnel.
+  </p>
+</div>
             {/* =========================
     PARTIE 4 — MÉTHODE DE PAIEMENT
 ========================= */}
