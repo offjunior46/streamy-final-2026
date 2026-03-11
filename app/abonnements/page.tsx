@@ -999,7 +999,7 @@ const [customerEmail, setCustomerEmail] = useState("");
                   }
                 }}
               >
-                🔵 Payer avec PayTech
+                🔵 Payer maintenant
               </button>
             </div>
           </div>
